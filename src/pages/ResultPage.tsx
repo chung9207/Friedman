@@ -3,7 +3,7 @@ import { Trash2, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
 import { useResultStore, type SavedResult } from "../stores/resultStore";
 import { COMMAND_LABELS } from "../lib/journalFlow";
 import { getChartForCommand } from "../lib/resultCharts";
-import { IRFChart } from "../components/charts/IRFChart";
+import { IRFChart, type IRFChartDatum } from "../components/charts/IRFChart";
 import { FEVDChart } from "../components/charts/FEVDChart";
 import { HDChart } from "../components/charts/HDChart";
 import { ForecastChart } from "../components/charts/ForecastChart";
@@ -17,6 +17,18 @@ function formatTimestamp(ts: number): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function chartContainerHeight(chart: { type: string; data: unknown }): number {
+  if (chart.type === "irf") {
+    const irfData = chart.data as IRFChartDatum[];
+    if (irfData.length > 1) {
+      const cols = Math.min(irfData.length, 3);
+      const rows = Math.ceil(irfData.length / cols);
+      return rows * 280 + 80;
+    }
+  }
+  return 350;
 }
 
 function ResultDataView({ command, data }: { command: string; data: unknown }) {
@@ -36,12 +48,14 @@ function ResultDataView({ command, data }: { command: string; data: unknown }) {
     );
   }
 
+  const height = chartContainerHeight(chart);
+
   return (
     <div>
       <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wide mb-1">
         Result
       </p>
-      <div className="h-[350px] bg-[var(--bg-primary)] border border-[var(--border-color)] rounded">
+      <div style={{ height }} className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded">
         {chart.type === "irf" && <IRFChart data={chart.data} />}
         {chart.type === "fevd" && <FEVDChart data={chart.data} />}
         {chart.type === "hd" && <HDChart data={chart.data} />}
@@ -164,7 +178,7 @@ export default function ResultPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex flex-col gap-3 max-w-3xl mx-auto">
             {results.map((r) => (
               <ResultCard
                 key={r.id}

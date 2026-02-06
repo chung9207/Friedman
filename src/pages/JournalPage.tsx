@@ -339,17 +339,32 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
       </div>
     );
 
-    const trendOpts = [
+    // Trend options vary per test command
+    const trendOptsAll = [
       { value: "none", label: "None" },
       { value: "constant", label: "Constant" },
       { value: "trend", label: "Trend" },
       { value: "both", label: "Both" },
     ];
+    const trendOptsNoNone = [
+      { value: "constant", label: "Constant" },
+      { value: "trend", label: "Trend" },
+    ];
+    const trendOptsNoBoth = [
+      { value: "none", label: "None" },
+      { value: "constant", label: "Constant" },
+      { value: "trend", label: "Trend" },
+    ];
+    const trendOptsZa = [
+      { value: "intercept", label: "Intercept" },
+      { value: "trend", label: "Trend" },
+      { value: "both", label: "Both" },
+    ];
 
     const vcovOpts = [
-      { value: "hac", label: "HAC" },
-      { value: "hc", label: "HC" },
-      { value: "ols", label: "OLS" },
+      { value: "newey_west", label: "Newey-West" },
+      { value: "white", label: "White" },
+      { value: "driscoll_kraay", label: "Driscoll-Kraay" },
     ];
 
     const idOpts = [
@@ -357,6 +372,9 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
       { value: "sign", label: "Sign Restrictions" },
       { value: "narrative", label: "Narrative" },
       { value: "longrun", label: "Long-Run" },
+    ];
+    const idOptsVarIrf = [
+      ...idOpts,
       { value: "arias", label: "Arias" },
     ];
 
@@ -365,13 +383,23 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
       { value: "bic", label: "BIC" },
       { value: "hqc", label: "HQC" },
     ];
+    const criterionOptsArima = [
+      { value: "aic", label: "AIC" },
+      { value: "bic", label: "BIC" },
+    ];
+
+    const samplerOpts = [
+      { value: "nuts", label: "NUTS" },
+      { value: "hmc", label: "HMC" },
+      { value: "smc", label: "SMC" },
+    ];
 
     switch (command) {
       case "var-estimate":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <SelectField name="trend" label="Trend" options={trendOptsAll} />
           </div>
         );
 
@@ -389,30 +417,25 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
       case "bvar-estimate":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
             <SelectField name="prior" label="Prior" options={[
               { value: "minnesota", label: "Minnesota" },
-              { value: "normal-wishart", label: "Normal-Wishart" },
-              { value: "ssvs", label: "SSVS" },
             ]} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
-            ]} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
           </div>
         );
 
       case "bvar-posterior":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
+            <SelectField name="method" label="Method" options={[
+              { value: "mean", label: "Mean" },
+              { value: "median", label: "Median" },
             ]} />
-            <TextField name="method" label="Method" placeholder="optional" />
           </div>
         );
 
@@ -422,7 +445,7 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
             <NumField name="shock" label="Shock" placeholder="1" min={1} />
             <NumField name="horizons" label="Horizons" placeholder="20" min={1} max={100} />
             <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
-            <SelectField name="id" label="Identification" options={idOpts} />
+            <SelectField name="id" label="Identification" options={idOptsVarIrf} />
             <SelectField name="ci" label="Confidence Interval" options={[
               { value: "none", label: "None" },
               { value: "bootstrap", label: "Bootstrap" },
@@ -463,13 +486,10 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <NumField name="shock" label="Shock" placeholder="1" min={1} />
             <NumField name="horizons" label="Horizons" placeholder="20" min={1} max={100} />
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
             <SelectField name="id" label="Identification" options={idOpts} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
-            ]} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
           </div>
         );
 
@@ -477,39 +497,30 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <NumField name="horizons" label="Horizons" placeholder="20" min={1} max={100} />
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
             <SelectField name="id" label="Identification" options={idOpts} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
-            ]} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
           </div>
         );
 
       case "bvar-hd":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
             <SelectField name="id" label="Identification" options={idOpts} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
-            ]} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
           </div>
         );
 
       case "bvar-forecast":
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
+            <NumField name="lags" label="Lags" placeholder="4" min={1} max={24} />
             <NumField name="horizons" label="Horizons" placeholder="12" min={1} max={100} />
-            <NumField name="draws" label="Draws" placeholder="1000" min={100} />
-            <SelectField name="sampler" label="Sampler" options={[
-              { value: "gibbs", label: "Gibbs" },
-              { value: "mh", label: "Metropolis-Hastings" },
-            ]} />
+            <NumField name="draws" label="Draws" placeholder="2000" min={100} />
+            <SelectField name="sampler" label="Sampler" options={samplerOpts} />
           </div>
         );
 
@@ -597,9 +608,16 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
               { value: "gdfm", label: "GDFM" },
             ]} />
             <NumField name="nfactors" label="Number of Factors" placeholder="auto" min={1} />
-            <TextField name="criterion" label="Criterion" placeholder="optional" />
-            {(fields.model_type === "dynamic" || fields.model_type === "gdfm") && <NumField name="factor_lags" label="Factor Lags" placeholder="auto" min={1} />}
-            {fields.model_type === "dynamic" && <TextField name="method" label="Method" placeholder="optional" />}
+            {fields.model_type === "static" && <SelectField name="criterion" label="Criterion" options={[
+              { value: "ic1", label: "IC1" },
+              { value: "ic2", label: "IC2" },
+              { value: "ic3", label: "IC3" },
+            ]} />}
+            {fields.model_type === "dynamic" && <NumField name="factor_lags" label="Factor Lags" placeholder="1" min={1} />}
+            {fields.model_type === "dynamic" && <SelectField name="method" label="Method" options={[
+              { value: "twostep", label: "Two-Step" },
+              { value: "em", label: "EM" },
+            ]} />}
             {fields.model_type === "gdfm" && <NumField name="dynamic_rank" label="Dynamic Rank" placeholder="auto" min={1} />}
           </div>
         );
@@ -609,7 +627,7 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <NumField name="column" label="Column" placeholder="1" min={1} />
             <NumField name="max_lags" label="Max Lags" placeholder="auto" min={1} max={24} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <SelectField name="trend" label="Trend" options={trendOptsAll} />
           </div>
         );
 
@@ -617,16 +635,23 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <NumField name="column" label="Column" placeholder="1" min={1} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <SelectField name="trend" label="Trend" options={trendOptsNoNone} />
           </div>
         );
 
       case "test-pp":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <NumField name="column" label="Column" placeholder="1" min={1} />
+            <SelectField name="trend" label="Trend" options={trendOptsNoBoth} />
+          </div>
+        );
+
       case "test-np":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <NumField name="column" label="Column" placeholder="1" min={1} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <SelectField name="trend" label="Trend" options={trendOptsNoNone} />
           </div>
         );
 
@@ -634,7 +659,7 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <NumField name="column" label="Column" placeholder="1" min={1} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <SelectField name="trend" label="Trend" options={trendOptsZa} />
             <NumField name="trim" label="Trim" placeholder="0.15" />
           </div>
         );
@@ -642,19 +667,20 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
       case "test-johansen":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <NumField name="lags" label="Lags" placeholder="auto" min={1} max={24} />
-            <SelectField name="trend" label="Trend" options={trendOpts} />
+            <NumField name="lags" label="Lags" placeholder="2" min={1} max={24} />
+            <SelectField name="trend" label="Trend" options={trendOptsNoBoth} />
           </div>
         );
 
       case "gmm-estimate":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <TextField name="config" label="Config (JSON)" placeholder='{"formula": "..."}' />
+            <TextField name="config" label="Config (TOML)" placeholder="path/to/config.toml" />
             <SelectField name="weighting" label="Weighting" options={[
+              { value: "twostep", label: "Two-Step" },
               { value: "optimal", label: "Optimal" },
-              { value: "two-step", label: "Two-Step" },
               { value: "identity", label: "Identity" },
+              { value: "iterated", label: "Iterated" },
             ]} />
           </div>
         );
@@ -666,13 +692,18 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
             <NumField name="p" label="p (AR)" placeholder="omit for auto" min={0} />
             <NumField name="d" label="d (Diff)" placeholder="0" min={0} max={3} />
             <NumField name="q" label="q (MA)" placeholder="0" min={0} />
-            <TextField name="method" label="Method" placeholder="optional" />
+            <SelectField name="method" label="Method" options={[
+              { value: "css_mle", label: "CSS-MLE" },
+              { value: "mle", label: "MLE" },
+              { value: "css", label: "CSS" },
+              { value: "ols", label: "OLS" },
+            ]} />
             {!fields.p && (
               <>
                 <NumField name="max_p" label="Max p" placeholder="5" min={0} max={24} />
                 <NumField name="max_d" label="Max d" placeholder="2" min={0} max={3} />
                 <NumField name="max_q" label="Max q" placeholder="5" min={0} max={24} />
-                <SelectField name="criterion" label="Criterion" options={criterionOpts} />
+                <SelectField name="criterion" label="Criterion" options={criterionOptsArima} />
               </>
             )}
           </div>
@@ -682,12 +713,17 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <NumField name="column" label="Column" placeholder="1" min={1} />
-            <NumField name="p" label="p (AR)" placeholder="1" min={0} />
+            <NumField name="p" label="p (AR)" placeholder="auto" min={0} />
             <NumField name="d" label="d (Diff)" placeholder="0" min={0} max={3} />
             <NumField name="q" label="q (MA)" placeholder="0" min={0} />
-            <NumField name="horizons" label="Horizons" placeholder="10" min={1} />
+            <NumField name="horizons" label="Horizons" placeholder="12" min={1} />
             <NumField name="confidence" label="Confidence" placeholder="0.95" />
-            <TextField name="method" label="Method" placeholder="optional" />
+            <SelectField name="method" label="Method" options={[
+              { value: "css_mle", label: "CSS-MLE" },
+              { value: "mle", label: "MLE" },
+              { value: "css", label: "CSS" },
+              { value: "ols", label: "OLS" },
+            ]} />
           </div>
         );
 
@@ -700,11 +736,18 @@ function CommandForm({ command, entryId, onComplete, onError }: CommandFormProps
               { value: "gdfm", label: "GDFM" },
             ]} />
             <NumField name="nfactors" label="Number of Factors" placeholder="auto" min={1} />
-            <NumField name="horizon" label="Horizon" placeholder="6" min={1} />
-            <TextField name="ci_method" label="CI Method" placeholder="optional" />
+            <NumField name="horizon" label="Horizon" placeholder="12" min={1} />
+            <SelectField name="ci_method" label="CI Method" options={[
+              { value: "none", label: "None" },
+              { value: "bootstrap", label: "Bootstrap" },
+              { value: "parametric", label: "Parametric" },
+            ]} />
             <NumField name="conf_level" label="Conf. Level" placeholder="0.95" />
-            {(fields.model === "dynamic" || fields.model === "gdfm") && <NumField name="factor_lags" label="Factor Lags" placeholder="auto" min={1} />}
-            {fields.model === "dynamic" && <TextField name="method" label="Method" placeholder="optional" />}
+            {(fields.model === "dynamic" || fields.model === "gdfm") && <NumField name="factor_lags" label="Factor Lags" placeholder="1" min={1} />}
+            {fields.model === "dynamic" && <SelectField name="method" label="Method" options={[
+              { value: "twostep", label: "Two-Step" },
+              { value: "em", label: "EM" },
+            ]} />}
             {fields.model === "gdfm" && <NumField name="dynamic_rank" label="Dynamic Rank" placeholder="auto" min={1} />}
           </div>
         );

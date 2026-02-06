@@ -95,8 +95,9 @@ export function IRFChart({ data }: IRFChartProps) {
   const layout: Partial<Layout> = {
     ...solarizedLayout,
     title: { text: "Impulse Response Functions", font: { color: "#073642", size: 13 } },
-    grid: { rows, columns: cols, pattern: "independent" as const },
-    height: rows * 250 + 60,
+    grid: { rows, columns: cols, pattern: "independent" as const, ygap: 0.15, xgap: 0.1 },
+    showlegend: false,
+    margin: { l: 50, r: 20, t: 40, b: 30 },
   };
 
   data.forEach((d, i) => {
@@ -110,12 +111,16 @@ export function IRFChart({ data }: IRFChartProps) {
     (layout as Record<string, unknown>)[xAxisKey] = {
       gridcolor: "#eee8d5",
       zerolinecolor: "#93a1a1",
-      title: { text: "Horizon", font: { color: "#586e75", size: 9 } },
+      tickfont: { size: 9, color: "#586e75" },
+      automargin: true,
+      dtick: data[0].horizon.length > 15 ? undefined : 1,
     };
     (layout as Record<string, unknown>)[yAxisKey] = {
       gridcolor: "#eee8d5",
       zerolinecolor: "#93a1a1",
-      title: { text: `${d.impulse}->${d.response}`, font: { color: "#586e75", size: 9 } },
+      title: { text: `${d.impulse}->${d.response}`, font: { color: "#586e75", size: 10 } },
+      tickfont: { size: 9, color: "#586e75" },
+      automargin: true,
     };
 
     if (d.upper) {
