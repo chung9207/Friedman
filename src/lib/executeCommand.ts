@@ -23,6 +23,12 @@ export async function executeCommand(command: string, params: Record<string, any
     case "factor-static": return commands.factorStatic(p);
     case "factor-dynamic": return commands.factorDynamic(p);
     case "factor-gdfm": return commands.factorGdfm(p);
+    case "factor-forecast": return commands.factorForecast(p);
+    case "nongaussian-fastica": return commands.nongaussianFastica(p);
+    case "nongaussian-ml": return commands.nongaussianMl(p);
+    case "nongaussian-heteroskedasticity": return commands.nongaussianHeteroskedasticity(p);
+    case "nongaussian-normality": return commands.nongaussianNormality(p);
+    case "nongaussian-identifiability": return commands.nongaussianIdentifiability(p);
     case "test-adf": return commands.testAdf(p);
     case "test-kpss": return commands.testKpss(p);
     case "test-pp": return commands.testPp(p);

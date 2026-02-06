@@ -25,6 +25,7 @@ export function getInitialOptions(hasData: boolean): FlowNode {
       { label: "Factor Models", command: "__menu_factor", description: "Static, Dynamic, GDFM" },
       { label: "ARIMA", command: "__menu_arima", description: "Univariate time series" },
       { label: "GMM", command: "__menu_gmm", description: "Generalized Method of Moments" },
+      { label: "Non-Gaussian SVAR", command: "__menu_nongaussian", description: "ICA, ML, heteroskedasticity identification" },
     ],
   };
 }
@@ -80,6 +81,24 @@ const FACTOR_MENU: FlowNode = {
     { label: "Static Factor", command: "factor-static", description: "Static factor analysis" },
     { label: "Dynamic Factor", command: "factor-dynamic", description: "Dynamic factor model" },
     { label: "GDFM", command: "factor-gdfm", description: "Generalized dynamic factor model" },
+    { label: "Factor Forecast", command: "factor-forecast", description: "Forecast using factor model" },
+  ],
+};
+
+const NONGAUSSIAN_MENU: FlowNode = {
+  message: "Non-Gaussian SVAR — which method?",
+  options: [
+    { label: "Normality Tests", command: "nongaussian-normality", description: "Test VAR residual normality" },
+    { label: "FastICA", command: "nongaussian-fastica", description: "ICA-based identification" },
+    { label: "ML Estimation", command: "nongaussian-ml", description: "Maximum likelihood non-Gaussian" },
+    { label: "Heteroskedasticity", command: "nongaussian-heteroskedasticity", description: "Volatility-based identification" },
+  ],
+};
+
+const NONGAUSSIAN_MENU_2: FlowNode = {
+  message: "More Non-Gaussian methods:",
+  options: [
+    { label: "Identifiability Tests", command: "nongaussian-identifiability", description: "Test identification conditions" },
   ],
 };
 
@@ -107,6 +126,8 @@ export function getSubMenu(menuCommand: string): FlowNode | null {
         { label: "GMM Estimate", command: "gmm-estimate", description: "Generalized Method of Moments" },
       ],
     };
+    case "__menu_nongaussian": return NONGAUSSIAN_MENU;
+    case "__menu_nongaussian2": return NONGAUSSIAN_MENU_2;
     default: return null;
   }
 }
@@ -254,6 +275,16 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
       return {
         message: "Factor model estimated. What next?",
         options: [
+          { label: "Factor Forecast", command: "factor-forecast", description: "Forecast using factor model" },
+          { label: "Try Another Model", command: "__menu_factor", description: "Different factor model" },
+          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
+        ],
+      };
+
+    case "factor-forecast":
+      return {
+        message: "Factor forecast generated. What next?",
+        options: [
           { label: "Try Another Model", command: "__menu_factor", description: "Different factor model" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
@@ -284,6 +315,40 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
       return {
         message: "Forecast generated.",
         options: [
+          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
+        ],
+      };
+
+    // Non-Gaussian SVAR branch
+    case "nongaussian-normality":
+      return {
+        message: "Normality tests complete. What next?",
+        options: [
+          { label: "FastICA Identification", command: "nongaussian-fastica", description: "ICA-based non-Gaussian SVAR" },
+          { label: "ML Identification", command: "nongaussian-ml", description: "Maximum likelihood approach" },
+          { label: "Identifiability Tests", command: "nongaussian-identifiability", description: "Test identification conditions" },
+          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
+        ],
+      };
+
+    case "nongaussian-fastica":
+    case "nongaussian-ml":
+    case "nongaussian-heteroskedasticity":
+      return {
+        message: "Non-Gaussian SVAR identified. What next?",
+        options: [
+          { label: "Identifiability Tests", command: "nongaussian-identifiability", description: "Verify identification" },
+          { label: "Try Another Method", command: "__menu_nongaussian", description: "Different identification method" },
+          { label: "More Methods", command: "__menu_nongaussian2", description: "Additional methods" },
+          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
+        ],
+      };
+
+    case "nongaussian-identifiability":
+      return {
+        message: "Identifiability tests complete. What next?",
+        options: [
+          { label: "Try Another Method", command: "__menu_nongaussian", description: "Different identification method" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
@@ -327,6 +392,12 @@ export const COMMAND_LABELS: Record<string, string> = {
   "factor-static": "Static Factor Model",
   "factor-dynamic": "Dynamic Factor Model",
   "factor-gdfm": "GDFM",
+  "factor-forecast": "Factor Forecast",
+  "nongaussian-fastica": "Non-Gaussian SVAR (FastICA)",
+  "nongaussian-ml": "Non-Gaussian SVAR (ML)",
+  "nongaussian-heteroskedasticity": "Heteroskedasticity SVAR",
+  "nongaussian-normality": "Normality Tests",
+  "nongaussian-identifiability": "Identifiability Tests",
   "test-adf": "ADF Test",
   "test-kpss": "KPSS Test",
   "test-pp": "Phillips-Perron Test",

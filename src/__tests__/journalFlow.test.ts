@@ -21,9 +21,9 @@ describe("journalFlow", () => {
       expect(result.message).toBe("What would you like to do?");
     });
 
-    it("has data → 7 options for all analysis types", () => {
+    it("has data → 8 options for all analysis types", () => {
       const result = getInitialOptions(true);
-      expect(result.options).toHaveLength(7);
+      expect(result.options).toHaveLength(8);
     });
 
     it("all options have label, command, description", () => {
@@ -80,13 +80,29 @@ describe("journalFlow", () => {
       ]);
     });
 
-    it("__menu_factor → 3 factor models", () => {
+    it("__menu_factor → 4 factor models (incl. forecast)", () => {
       const menu = getSubMenu("__menu_factor");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(3);
+      expect(menu!.options).toHaveLength(4);
       expect(menu!.options.map((o) => o.command)).toEqual([
-        "factor-static", "factor-dynamic", "factor-gdfm",
+        "factor-static", "factor-dynamic", "factor-gdfm", "factor-forecast",
       ]);
+    });
+
+    it("__menu_nongaussian → 4 non-gaussian methods", () => {
+      const menu = getSubMenu("__menu_nongaussian");
+      expect(menu).not.toBeNull();
+      expect(menu!.options).toHaveLength(4);
+      expect(menu!.options.map((o) => o.command)).toEqual([
+        "nongaussian-normality", "nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity",
+      ]);
+    });
+
+    it("__menu_nongaussian2 → identifiability tests", () => {
+      const menu = getSubMenu("__menu_nongaussian2");
+      expect(menu).not.toBeNull();
+      expect(menu!.options).toHaveLength(1);
+      expect(menu!.options[0].command).toBe("nongaussian-identifiability");
     });
 
     it("__menu_arima → 3 ARIMA options", () => {
@@ -203,13 +219,44 @@ describe("journalFlow", () => {
 
     // Factor models
     for (const cmd of ["factor-static", "factor-dynamic", "factor-gdfm"]) {
-      it(`after ${cmd} → try another, new analysis`, () => {
+      it(`after ${cmd} → forecast, try another, new analysis`, () => {
         const next = getNextSteps(cmd, {});
         expect(next.options.map((o) => o.command)).toEqual([
-          "__menu_factor", "__main_menu",
+          "factor-forecast", "__menu_factor", "__main_menu",
         ]);
       });
     }
+
+    it("after factor-forecast → try another, new analysis", () => {
+      const next = getNextSteps("factor-forecast", {});
+      expect(next.options.map((o) => o.command)).toEqual([
+        "__menu_factor", "__main_menu",
+      ]);
+    });
+
+    // Non-Gaussian SVAR
+    it("after nongaussian-normality → fastica, ml, identifiability, new analysis", () => {
+      const next = getNextSteps("nongaussian-normality", {});
+      expect(next.options.map((o) => o.command)).toEqual([
+        "nongaussian-fastica", "nongaussian-ml", "nongaussian-identifiability", "__main_menu",
+      ]);
+    });
+
+    for (const cmd of ["nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity"]) {
+      it(`after ${cmd} → identifiability, try another, more, new analysis`, () => {
+        const next = getNextSteps(cmd, {});
+        expect(next.options.map((o) => o.command)).toEqual([
+          "nongaussian-identifiability", "__menu_nongaussian", "__menu_nongaussian2", "__main_menu",
+        ]);
+      });
+    }
+
+    it("after nongaussian-identifiability → try another, new analysis", () => {
+      const next = getNextSteps("nongaussian-identifiability", {});
+      expect(next.options.map((o) => o.command)).toEqual([
+        "__menu_nongaussian", "__main_menu",
+      ]);
+    });
 
     it("after arima-auto → forecast, manual, new analysis", () => {
       const next = getNextSteps("arima-auto", {});
@@ -247,14 +294,16 @@ describe("journalFlow", () => {
   // ── COMMAND_LABELS ─────────────────────────────────────────────────────
 
   describe("COMMAND_LABELS", () => {
-    it("has entries for all 29 commands", () => {
+    it("has entries for all 34 commands", () => {
       const expectedCommands = [
         "var-estimate", "var-lagselect", "var-stability",
         "bvar-estimate", "bvar-posterior",
         "irf-compute", "fevd-compute", "hd-compute",
         "lp-estimate", "lp-iv", "lp-smooth", "lp-state",
         "lp-propensity", "lp-multi", "lp-robust",
-        "factor-static", "factor-dynamic", "factor-gdfm",
+        "factor-static", "factor-dynamic", "factor-gdfm", "factor-forecast",
+        "nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity",
+        "nongaussian-normality", "nongaussian-identifiability",
         "test-adf", "test-kpss", "test-pp", "test-za", "test-np", "test-johansen",
         "gmm-estimate",
         "arima-estimate", "arima-auto", "arima-forecast",

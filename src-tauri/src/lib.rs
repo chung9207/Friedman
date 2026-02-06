@@ -49,6 +49,7 @@ pub fn run() {
             commands::factor::factor_static,
             commands::factor::factor_dynamic,
             commands::factor::factor_gdfm,
+            commands::factor::factor_forecast,
             // test
             commands::test::test_adf,
             commands::test::test_kpss,
@@ -62,6 +63,12 @@ pub fn run() {
             commands::arima::arima_estimate,
             commands::arima::arima_forecast,
             commands::arima::arima_auto,
+            // nongaussian
+            commands::nongaussian::nongaussian_fastica,
+            commands::nongaussian::nongaussian_ml,
+            commands::nongaussian::nongaussian_heteroskedasticity,
+            commands::nongaussian::nongaussian_normality,
+            commands::nongaussian::nongaussian_identifiability,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Friedman");

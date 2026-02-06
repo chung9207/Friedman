@@ -130,8 +130,7 @@ pub async fn run_friedman_command(
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    serde_json::from_str(&stdout)
-        .map_err(|e| FriedmanError::JsonParse(format!("{e}: {stdout}")))
+    extract_json(&stdout)
 }
 
 /// Run a friedman-cli command while streaming stderr progress lines as Tauri
@@ -206,6 +205,65 @@ pub async fn run_friedman_command_with_progress(
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    serde_json::from_str(&stdout)
-        .map_err(|e| FriedmanError::JsonParse(format!("{e}: {stdout}")))
+    extract_json(&stdout)
+}
+
+/// Extract the first JSON object or array from mixed stdout.
+///
+/// The Julia sidecar prints diagnostic text (headers, conclusions) around the
+/// JSON payload.  We scan for the first `{` or `[` and find its matching
+/// closing delimiter, then parse just that slice.
+fn extract_json(raw: &str) -> Result<serde_json::Value, FriedmanError> {
+    // Fast path: entire output is valid JSON
+    if let Ok(v) = serde_json::from_str(raw) {
+        return Ok(v);
+    }
+
+    // Find the first '{' or '['
+    let start = raw
+        .find(|c| c == '{' || c == '[')
+        .ok_or_else(|| FriedmanError::JsonParse(format!("No JSON found in output: {raw}")))?;
+
+    let open = raw.as_bytes()[start];
+    let close = if open == b'{' { b'}' } else { b']' };
+
+    // Walk forward tracking nesting depth (ignoring chars inside strings)
+    let mut depth = 0i32;
+    let mut in_string = false;
+    let mut escape = false;
+    let mut end = None;
+
+    for (i, b) in raw[start..].bytes().enumerate() {
+        if escape {
+            escape = false;
+            continue;
+        }
+        if b == b'\\' && in_string {
+            escape = true;
+            continue;
+        }
+        if b == b'"' {
+            in_string = !in_string;
+            continue;
+        }
+        if in_string {
+            continue;
+        }
+        if b == open {
+            depth += 1;
+        } else if b == close {
+            depth -= 1;
+            if depth == 0 {
+                end = Some(start + i + 1);
+                break;
+            }
+        }
+    }
+
+    let end = end.ok_or_else(|| {
+        FriedmanError::JsonParse(format!("Unmatched JSON delimiter in output: {raw}"))
+    })?;
+
+    serde_json::from_str(&raw[start..end])
+        .map_err(|e| FriedmanError::JsonParse(format!("{e}: {}", &raw[start..end])))
 }

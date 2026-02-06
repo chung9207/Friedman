@@ -2,7 +2,7 @@
 
 julia_version = "1.12.4"
 manifest_format = "2.0"
-project_hash = "7ea8d6f0707e2dc64ec1b096b47f103d2668ab0b"
+project_hash = "3bbc6cd7d65e03dbed27ab4866dfa4bff6c7a98e"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "f7304359109c768cf32dc5fa2d371565bb63b68a"
@@ -663,11 +663,11 @@ weakdeps = ["StaticArrays"]
 
 [[deps.Friedman]]
 deps = ["CSV", "DataFrames", "JSON3", "LinearAlgebra", "MacroEconometricModels", "PrettyTables", "Statistics", "TOML"]
-git-tree-sha1 = "aa4524913a04b66eaeab49df6248e05173794eb8"
+git-tree-sha1 = "ee3b334b6e83c9bda3775e7d9fc7c712aefb91e7"
 repo-rev = "master"
 repo-url = "https://github.com/chung9207/Friedman-cli.git"
 uuid = "f7a1e3d0-2b4c-4e8f-9a6d-1c3b5e7f9a2d"
-version = "0.1.1"
+version = "0.1.2"
 
 [[deps.FunctionWrappers]]
 git-tree-sha1 = "d62485945ce5ae9c0c48f124a84998d755bae00e"
@@ -982,10 +982,12 @@ uuid = "e80e1ace-859a-464e-9ed9-23947d8ae3ea"
 version = "1.12.1"
 
 [[deps.MacroEconometricModels]]
-deps = ["DataFrames", "Distributions", "FFTW", "LinearAlgebra", "MCMCChains", "PrettyTables", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "Turing"]
-git-tree-sha1 = "980878148bc3dff4d37149b9ede6b39923ac291b"
+deps = ["DataFrames", "Distributions", "FFTW", "LinearAlgebra", "MCMCChains", "Optim", "PrettyTables", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "Turing"]
+git-tree-sha1 = "589d4d35364249401ab1f1a7d210eea3ec5dc7bb"
+repo-rev = "main"
+repo-url = "https://github.com/chung9207/MacroEconometricModels.jl.git"
 uuid = "14a6ec33-bcac-448e-845f-2fb6769698f1"
-version = "0.1.1"
+version = "0.1.2"
 
 [[deps.MacroTools]]
 git-tree-sha1 = "1e0228a030642014fe5cfe68c2c0a818f9e3f522"

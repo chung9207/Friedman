@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:sidecar": "julia --project=src-tauri/sidecar scripts/test-sidecar.jl",
+    "test:sidecar:slow": "julia --project=src-tauri/sidecar scripts/test-sidecar.jl --slow",
+    "test:sidecar:rust": "cargo test -p friedman-app --test sidecar_integration -- --ignored",
+    "test:all": "vitest run && julia --project=src-tauri/sidecar scripts/test-sidecar.jl"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

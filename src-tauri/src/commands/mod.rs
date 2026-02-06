@@ -9,3 +9,4 @@ pub mod factor;
 pub mod test;
 pub mod gmm;
 pub mod arima;
+pub mod nongaussian;

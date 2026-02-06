@@ -165,6 +165,50 @@ export interface FactorGdfmParams {
   dynamic_rank?: number;
 }
 
+export interface FactorForecastParams {
+  data: string;
+  nfactors?: number;
+  horizon?: number;
+  ci_method?: string;
+  conf_level?: number;
+}
+
+// ── Non-Gaussian SVAR ───────────────────────────────────────────────────────
+
+export interface NongaussianFasticaParams {
+  data: string;
+  lags?: number;
+  method?: string; // fastica|infomax|jade
+  contrast?: string; // logcosh|exp|kurtosis
+}
+
+export interface NongaussianMlParams {
+  data: string;
+  lags?: number;
+  distribution?: string; // student_t|skew_t|ghd
+}
+
+export interface NongaussianHeteroskedasticityParams {
+  data: string;
+  lags?: number;
+  method?: string; // markov|garch|smooth_transition|external
+  config?: string;
+  regimes?: number;
+}
+
+export interface NongaussianNormalityParams {
+  data: string;
+  lags?: number;
+}
+
+export interface NongaussianIdentifiabilityParams {
+  data: string;
+  lags?: number;
+  test?: string; // strength|gaussianity|independence|all
+  method?: string; // fastica|infomax|jade
+  contrast?: string; // logcosh|exp|kurtosis
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 export interface TestAdfParams {

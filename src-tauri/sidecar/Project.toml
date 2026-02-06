@@ -1,5 +1,6 @@
 [deps]
 Friedman = "f7a1e3d0-2b4c-4e8f-9a6d-1c3b5e7f9a2d"
+MacroEconometricModels = "14a6ec33-bcac-448e-845f-2fb6769698f1"
 
 [sources]
 Friedman = {url = "https://github.com/chung9207/Friedman-cli.git"}

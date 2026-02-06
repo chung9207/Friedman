@@ -302,6 +302,101 @@ describe("command integration (invoke param shapes)", () => {
         params: { data: "/d.csv", nfactors: 3, dynamic_rank: 2 },
       });
     });
+
+    it("factor-forecast auto (no nfactors)", async () => {
+      await commands.factorForecast({ data: "/d.csv" });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_forecast", {
+        params: { data: "/d.csv" },
+      });
+    });
+
+    it("factor-forecast with explicit nfactors + horizon", async () => {
+      await commands.factorForecast({ data: "/d.csv", nfactors: 2, horizon: 6 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_forecast", {
+        params: { data: "/d.csv", nfactors: 2, horizon: 6 },
+      });
+    });
+
+    it("factor-forecast with ci_method=bootstrap", async () => {
+      await commands.factorForecast({ data: "/d.csv", ci_method: "bootstrap", conf_level: 0.9 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_forecast", {
+        params: { data: "/d.csv", ci_method: "bootstrap", conf_level: 0.9 },
+      });
+    });
+  });
+
+  // ── Non-Gaussian SVAR ──────────────────────────────────────────────────
+
+  describe("Non-Gaussian SVAR", () => {
+    it("nongaussian-fastica with defaults", async () => {
+      await commands.nongaussianFastica({ data: "/d.csv" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_fastica", {
+        params: { data: "/d.csv" },
+      });
+    });
+
+    it("nongaussian-fastica with explicit lags + method + contrast", async () => {
+      await commands.nongaussianFastica({ data: "/d.csv", lags: 2, method: "jade", contrast: "exp" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_fastica", {
+        params: { data: "/d.csv", lags: 2, method: "jade", contrast: "exp" },
+      });
+    });
+
+    it("nongaussian-ml with student_t distribution", async () => {
+      await commands.nongaussianMl({ data: "/d.csv", distribution: "student_t" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_ml", {
+        params: { data: "/d.csv", distribution: "student_t" },
+      });
+    });
+
+    it("nongaussian-ml with lags", async () => {
+      await commands.nongaussianMl({ data: "/d.csv", lags: 4 });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_ml", {
+        params: { data: "/d.csv", lags: 4 },
+      });
+    });
+
+    it("nongaussian-heteroskedasticity with markov method", async () => {
+      await commands.nongaussianHeteroskedasticity({ data: "/d.csv", method: "markov", regimes: 2 });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_heteroskedasticity", {
+        params: { data: "/d.csv", method: "markov", regimes: 2 },
+      });
+    });
+
+    it("nongaussian-heteroskedasticity with config", async () => {
+      await commands.nongaussianHeteroskedasticity({ data: "/d.csv", method: "external", config: "/cfg.toml" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_heteroskedasticity", {
+        params: { data: "/d.csv", method: "external", config: "/cfg.toml" },
+      });
+    });
+
+    it("nongaussian-normality with defaults", async () => {
+      await commands.nongaussianNormality({ data: "/d.csv" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_normality", {
+        params: { data: "/d.csv" },
+      });
+    });
+
+    it("nongaussian-normality with lags", async () => {
+      await commands.nongaussianNormality({ data: "/d.csv", lags: 3 });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_normality", {
+        params: { data: "/d.csv", lags: 3 },
+      });
+    });
+
+    it("nongaussian-identifiability defaults", async () => {
+      await commands.nongaussianIdentifiability({ data: "/d.csv" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_identifiability", {
+        params: { data: "/d.csv" },
+      });
+    });
+
+    it("nongaussian-identifiability with explicit test + method + contrast", async () => {
+      await commands.nongaussianIdentifiability({ data: "/d.csv", test: "strength", method: "jade", contrast: "kurtosis" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_identifiability", {
+        params: { data: "/d.csv", test: "strength", method: "jade", contrast: "kurtosis" },
+      });
+    });
   });
 
   // ── Unit Root Tests ─────────────────────────────────────────────────────

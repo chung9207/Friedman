@@ -19,6 +19,12 @@ import type {
   FactorStaticParams,
   FactorDynamicParams,
   FactorGdfmParams,
+  FactorForecastParams,
+  NongaussianFasticaParams,
+  NongaussianMlParams,
+  NongaussianHeteroskedasticityParams,
+  NongaussianNormalityParams,
+  NongaussianIdentifiabilityParams,
   TestAdfParams,
   TestKpssParams,
   TestPpParams,
@@ -135,6 +141,32 @@ export async function factorDynamic(params: FactorDynamicParams): Promise<Record
 
 export async function factorGdfm(params: FactorGdfmParams): Promise<Record<string, unknown>> {
   return invoke<Record<string, unknown>>("factor_gdfm", { params });
+}
+
+export async function factorForecast(params: FactorForecastParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("factor_forecast", { params });
+}
+
+// ── Non-Gaussian SVAR ───────────────────────────────────────────────────────
+
+export async function nongaussianFastica(params: NongaussianFasticaParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("nongaussian_fastica", { params });
+}
+
+export async function nongaussianMl(params: NongaussianMlParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("nongaussian_ml", { params });
+}
+
+export async function nongaussianHeteroskedasticity(params: NongaussianHeteroskedasticityParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("nongaussian_heteroskedasticity", { params });
+}
+
+export async function nongaussianNormality(params: NongaussianNormalityParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("nongaussian_normality", { params });
+}
+
+export async function nongaussianIdentifiability(params: NongaussianIdentifiabilityParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("nongaussian_identifiability", { params });
 }
 
 // ── Unit Root & Cointegration Tests ──────────────────────────────────────────
