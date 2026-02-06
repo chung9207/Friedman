@@ -75,6 +75,47 @@ describe("command integration (invoke param shapes)", () => {
         params: { data: "/d.csv", lags: 3 },
       });
     });
+
+    it("var-irf with all params", async () => {
+      await commands.varIrf({
+        data: "/d.csv", lags: 4, shock: 1, horizons: 20,
+        id: "cholesky", ci: "bootstrap", replications: 500,
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("var_irf", {
+        params: {
+          data: "/d.csv", lags: 4, shock: 1, horizons: 20,
+          id: "cholesky", ci: "bootstrap", replications: 500,
+        },
+      });
+    });
+
+    it("var-irf with sign restrictions", async () => {
+      await commands.varIrf({ data: "/d.csv", id: "sign", config: "/sign.toml" });
+      expect(mockInvoke).toHaveBeenCalledWith("var_irf", {
+        params: { data: "/d.csv", id: "sign", config: "/sign.toml" },
+      });
+    });
+
+    it("var-fevd with horizons + id", async () => {
+      await commands.varFevd({ data: "/d.csv", horizons: 20, id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("var_fevd", {
+        params: { data: "/d.csv", horizons: 20, id: "cholesky" },
+      });
+    });
+
+    it("var-hd basic", async () => {
+      await commands.varHd({ data: "/d.csv", id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("var_hd", {
+        params: { data: "/d.csv", id: "cholesky" },
+      });
+    });
+
+    it("var-forecast with horizons + confidence", async () => {
+      await commands.varForecast({ data: "/d.csv", horizons: 12, confidence: 0.95 });
+      expect(mockInvoke).toHaveBeenCalledWith("var_forecast", {
+        params: { data: "/d.csv", horizons: 12, confidence: 0.95 },
+      });
+    });
   });
 
   // ── BVAR ────────────────────────────────────────────────────────────────
@@ -102,91 +143,38 @@ describe("command integration (invoke param shapes)", () => {
         params: { data: "/d.csv", method: "median" },
       });
     });
-  });
 
-  // ── IRF ─────────────────────────────────────────────────────────────────
-
-  describe("IRF", () => {
-    it("irf-compute non-bayesian", async () => {
-      await commands.irfCompute({
-        data: "/d.csv", shock: 1, horizons: 20, id: "cholesky",
-        ci: "bootstrap", replications: 500,
+    it("bvar-irf with all params", async () => {
+      await commands.bvarIrf({
+        data: "/d.csv", lags: 4, shock: 1, horizons: 20,
+        id: "cholesky", draws: 2000, sampler: "gibbs",
       });
-      expect(mockInvoke).toHaveBeenCalledWith("irf_compute", {
+      expect(mockInvoke).toHaveBeenCalledWith("bvar_irf", {
         params: {
-          data: "/d.csv", shock: 1, horizons: 20, id: "cholesky",
-          ci: "bootstrap", replications: 500,
+          data: "/d.csv", lags: 4, shock: 1, horizons: 20,
+          id: "cholesky", draws: 2000, sampler: "gibbs",
         },
       });
     });
 
-    it("irf-compute with explicit lags", async () => {
-      await commands.irfCompute({ data: "/d.csv", lags: 4, horizons: 10 });
-      expect(mockInvoke).toHaveBeenCalledWith("irf_compute", {
-        params: { data: "/d.csv", lags: 4, horizons: 10 },
-      });
-    });
-
-    it("irf-compute bayesian", async () => {
-      await commands.irfCompute({
-        data: "/d.csv", bayesian: true, draws: 2000, sampler: "gibbs",
-      });
-      expect(mockInvoke).toHaveBeenCalledWith("irf_compute", {
-        params: { data: "/d.csv", bayesian: true, draws: 2000, sampler: "gibbs" },
-      });
-    });
-  });
-
-  // ── FEVD ────────────────────────────────────────────────────────────────
-
-  describe("FEVD", () => {
-    it("fevd-compute basic", async () => {
-      await commands.fevdCompute({ data: "/d.csv", horizons: 20, id: "cholesky" });
-      expect(mockInvoke).toHaveBeenCalledWith("fevd_compute", {
+    it("bvar-fevd basic", async () => {
+      await commands.bvarFevd({ data: "/d.csv", horizons: 20, id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("bvar_fevd", {
         params: { data: "/d.csv", horizons: 20, id: "cholesky" },
       });
     });
 
-    it("fevd-compute with lags", async () => {
-      await commands.fevdCompute({ data: "/d.csv", lags: 3, horizons: 15 });
-      expect(mockInvoke).toHaveBeenCalledWith("fevd_compute", {
-        params: { data: "/d.csv", lags: 3, horizons: 15 },
-      });
-    });
-
-    it("fevd-compute bayesian", async () => {
-      await commands.fevdCompute({
-        data: "/d.csv", bayesian: true, draws: 1000, sampler: "gibbs",
-      });
-      expect(mockInvoke).toHaveBeenCalledWith("fevd_compute", {
-        params: { data: "/d.csv", bayesian: true, draws: 1000, sampler: "gibbs" },
-      });
-    });
-  });
-
-  // ── HD ──────────────────────────────────────────────────────────────────
-
-  describe("HD", () => {
-    it("hd-compute basic", async () => {
-      await commands.hdCompute({ data: "/d.csv", id: "cholesky" });
-      expect(mockInvoke).toHaveBeenCalledWith("hd_compute", {
+    it("bvar-hd basic", async () => {
+      await commands.bvarHd({ data: "/d.csv", id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("bvar_hd", {
         params: { data: "/d.csv", id: "cholesky" },
       });
     });
 
-    it("hd-compute with lags", async () => {
-      await commands.hdCompute({ data: "/d.csv", lags: 4, id: "cholesky" });
-      expect(mockInvoke).toHaveBeenCalledWith("hd_compute", {
-        params: { data: "/d.csv", lags: 4, id: "cholesky" },
-      });
-    });
-
-    it("hd-compute bayesian", async () => {
-      await commands.hdCompute({
-        data: "/d.csv", bayesian: true, draws: 1000, sampler: "gibbs",
-      });
-      expect(mockInvoke).toHaveBeenCalledWith("hd_compute", {
-        params: { data: "/d.csv", bayesian: true, draws: 1000, sampler: "gibbs" },
+    it("bvar-forecast with draws + sampler", async () => {
+      await commands.bvarForecast({ data: "/d.csv", horizons: 12, draws: 1000, sampler: "gibbs" });
+      expect(mockInvoke).toHaveBeenCalledWith("bvar_forecast", {
+        params: { data: "/d.csv", horizons: 12, draws: 1000, sampler: "gibbs" },
       });
     });
   });
@@ -194,73 +182,98 @@ describe("command integration (invoke param shapes)", () => {
   // ── LP ──────────────────────────────────────────────────────────────────
 
   describe("LP", () => {
-    it("lp-estimate with newey_west vcov", async () => {
-      await commands.lpEstimate({ data: "/d.csv", vcov: "newey_west" });
+    it("lp-estimate standard method", async () => {
+      await commands.lpEstimate({ data: "/d.csv", method: "standard", vcov: "hac" });
       expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
-        params: { data: "/d.csv", vcov: "newey_west" },
+        params: { data: "/d.csv", method: "standard", vcov: "hac" },
       });
     });
 
-    it("lp-estimate with white vcov", async () => {
-      await commands.lpEstimate({ data: "/d.csv", vcov: "white" });
+    it("lp-estimate iv method with instruments", async () => {
+      await commands.lpEstimate({
+        data: "/d.csv", method: "iv", instruments: "3,4", shock: 1, horizons: 20,
+      });
       expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
-        params: { data: "/d.csv", vcov: "white" },
+        params: { data: "/d.csv", method: "iv", instruments: "3,4", shock: 1, horizons: 20 },
       });
     });
 
-    it("lp-iv without instruments", async () => {
-      await commands.lpIv({ data: "/d.csv", shock: 1, horizons: 20 });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_iv", {
-        params: { data: "/d.csv", shock: 1, horizons: 20 },
+    it("lp-estimate smooth method with knots + lambda", async () => {
+      await commands.lpEstimate({
+        data: "/d.csv", method: "smooth", knots: 5, lambda: 0.1,
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
+        params: { data: "/d.csv", method: "smooth", knots: 5, lambda: 0.1 },
       });
     });
 
-    it("lp-smooth with knots + lambda", async () => {
-      await commands.lpSmooth({ data: "/d.csv", knots: 5, lambda: 0.1 });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_smooth", {
-        params: { data: "/d.csv", knots: 5, lambda: 0.1 },
+    it("lp-estimate state method with transition + gamma", async () => {
+      await commands.lpEstimate({
+        data: "/d.csv", method: "state", state_var: 2, gamma: 1.5, transition: "logistic",
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
+        params: { data: "/d.csv", method: "state", state_var: 2, gamma: 1.5, transition: "logistic" },
       });
     });
 
-    it("lp-state with logistic method + gamma", async () => {
-      await commands.lpState({ data: "/d.csv", method: "logistic", gamma: 1.5 });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_state", {
-        params: { data: "/d.csv", method: "logistic", gamma: 1.5 },
+    it("lp-estimate propensity method", async () => {
+      await commands.lpEstimate({
+        data: "/d.csv", method: "propensity", treatment: 1, score_method: "logit",
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
+        params: { data: "/d.csv", method: "propensity", treatment: 1, score_method: "logit" },
       });
     });
 
-    it("lp-state with explicit state_var", async () => {
-      await commands.lpState({ data: "/d.csv", state_var: 2 });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_state", {
-        params: { data: "/d.csv", state_var: 2 },
+    it("lp-estimate robust method", async () => {
+      await commands.lpEstimate({
+        data: "/d.csv", method: "robust", treatment: 1, horizons: 20,
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_estimate", {
+        params: { data: "/d.csv", method: "robust", treatment: 1, horizons: 20 },
       });
     });
 
-    it("lp-propensity with logit score_method", async () => {
-      await commands.lpPropensity({ data: "/d.csv", score_method: "logit" });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_propensity", {
-        params: { data: "/d.csv", score_method: "logit" },
+    it("lp-irf with shocks list", async () => {
+      await commands.lpIrf({ data: "/d.csv", shocks: "1,2", horizons: 20 });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_irf", {
+        params: { data: "/d.csv", shocks: "1,2", horizons: 20 },
       });
     });
 
-    it("lp-propensity with probit score_method", async () => {
-      await commands.lpPropensity({ data: "/d.csv", score_method: "probit" });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_propensity", {
-        params: { data: "/d.csv", score_method: "probit" },
+    it("lp-irf with single shock + ci", async () => {
+      await commands.lpIrf({
+        data: "/d.csv", shock: 1, horizons: 20, ci: "bootstrap", replications: 500,
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_irf", {
+        params: { data: "/d.csv", shock: 1, horizons: 20, ci: "bootstrap", replications: 500 },
       });
     });
 
-    it("lp-multi with shocks='1,2'", async () => {
-      await commands.lpMulti({ data: "/d.csv", shocks: "1,2" });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_multi", {
-        params: { data: "/d.csv", shocks: "1,2" },
+    it("lp-fevd basic", async () => {
+      await commands.lpFevd({ data: "/d.csv", horizons: 20, id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_fevd", {
+        params: { data: "/d.csv", horizons: 20, id: "cholesky" },
       });
     });
 
-    it("lp-robust", async () => {
-      await commands.lpRobust({ data: "/d.csv", treatment: 1, horizons: 20 });
-      expect(mockInvoke).toHaveBeenCalledWith("lp_robust", {
-        params: { data: "/d.csv", treatment: 1, horizons: 20 },
+    it("lp-hd basic", async () => {
+      await commands.lpHd({ data: "/d.csv", id: "cholesky" });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_hd", {
+        params: { data: "/d.csv", id: "cholesky" },
+      });
+    });
+
+    it("lp-forecast with all params", async () => {
+      await commands.lpForecast({
+        data: "/d.csv", shock: 1, horizons: 12, shock_size: 1.0,
+        lags: 4, vcov: "hac", ci_method: "bootstrap", conf_level: 0.95, n_boot: 500,
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("lp_forecast", {
+        params: {
+          data: "/d.csv", shock: 1, horizons: 12, shock_size: 1.0,
+          lags: 4, vcov: "hac", ci_method: "bootstrap", conf_level: 0.95, n_boot: 500,
+        },
       });
     });
   });
@@ -268,38 +281,38 @@ describe("command integration (invoke param shapes)", () => {
   // ── Factor ──────────────────────────────────────────────────────────────
 
   describe("Factor", () => {
-    it("factor-static auto (no nfactors)", async () => {
-      await commands.factorStatic({ data: "/d.csv" });
-      expect(mockInvoke).toHaveBeenCalledWith("factor_static", {
-        params: { data: "/d.csv" },
+    it("factor-estimate static model (no nfactors)", async () => {
+      await commands.factorEstimate({ data: "/d.csv", model_type: "static" });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_estimate", {
+        params: { data: "/d.csv", model_type: "static" },
       });
     });
 
-    it("factor-static with explicit nfactors", async () => {
-      await commands.factorStatic({ data: "/d.csv", nfactors: 3 });
-      expect(mockInvoke).toHaveBeenCalledWith("factor_static", {
-        params: { data: "/d.csv", nfactors: 3 },
+    it("factor-estimate static with explicit nfactors", async () => {
+      await commands.factorEstimate({ data: "/d.csv", model_type: "static", nfactors: 3 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_estimate", {
+        params: { data: "/d.csv", model_type: "static", nfactors: 3 },
       });
     });
 
-    it("factor-dynamic with twostep method", async () => {
-      await commands.factorDynamic({ data: "/d.csv", method: "twostep" });
-      expect(mockInvoke).toHaveBeenCalledWith("factor_dynamic", {
-        params: { data: "/d.csv", method: "twostep" },
+    it("factor-estimate dynamic with method", async () => {
+      await commands.factorEstimate({ data: "/d.csv", model_type: "dynamic", method: "twostep" });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_estimate", {
+        params: { data: "/d.csv", model_type: "dynamic", method: "twostep" },
       });
     });
 
-    it("factor-dynamic with em method + nfactors", async () => {
-      await commands.factorDynamic({ data: "/d.csv", method: "em", nfactors: 2 });
-      expect(mockInvoke).toHaveBeenCalledWith("factor_dynamic", {
-        params: { data: "/d.csv", method: "em", nfactors: 2 },
+    it("factor-estimate dynamic with em method + nfactors", async () => {
+      await commands.factorEstimate({ data: "/d.csv", model_type: "dynamic", method: "em", nfactors: 2 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_estimate", {
+        params: { data: "/d.csv", model_type: "dynamic", method: "em", nfactors: 2 },
       });
     });
 
-    it("factor-gdfm auto and with explicit params", async () => {
-      await commands.factorGdfm({ data: "/d.csv", nfactors: 3, dynamic_rank: 2 });
-      expect(mockInvoke).toHaveBeenCalledWith("factor_gdfm", {
-        params: { data: "/d.csv", nfactors: 3, dynamic_rank: 2 },
+    it("factor-estimate gdfm with nfactors + dynamic_rank", async () => {
+      await commands.factorEstimate({ data: "/d.csv", model_type: "gdfm", nfactors: 3, dynamic_rank: 2 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_estimate", {
+        params: { data: "/d.csv", model_type: "gdfm", nfactors: 3, dynamic_rank: 2 },
       });
     });
 
@@ -323,6 +336,13 @@ describe("command integration (invoke param shapes)", () => {
         params: { data: "/d.csv", ci_method: "bootstrap", conf_level: 0.9 },
       });
     });
+
+    it("factor-forecast with model=dynamic + factor_lags", async () => {
+      await commands.factorForecast({ data: "/d.csv", model: "dynamic", factor_lags: 2 });
+      expect(mockInvoke).toHaveBeenCalledWith("factor_forecast", {
+        params: { data: "/d.csv", model: "dynamic", factor_lags: 2 },
+      });
+    });
   });
 
   // ── Non-Gaussian SVAR ──────────────────────────────────────────────────
@@ -342,10 +362,45 @@ describe("command integration (invoke param shapes)", () => {
       });
     });
 
+    it("nongaussian-fastica with sobi method", async () => {
+      await commands.nongaussianFastica({ data: "/d.csv", method: "sobi" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_fastica", {
+        params: { data: "/d.csv", method: "sobi" },
+      });
+    });
+
+    it("nongaussian-fastica with dcov method", async () => {
+      await commands.nongaussianFastica({ data: "/d.csv", method: "dcov" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_fastica", {
+        params: { data: "/d.csv", method: "dcov" },
+      });
+    });
+
+    it("nongaussian-fastica with hsic method", async () => {
+      await commands.nongaussianFastica({ data: "/d.csv", method: "hsic" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_fastica", {
+        params: { data: "/d.csv", method: "hsic" },
+      });
+    });
+
     it("nongaussian-ml with student_t distribution", async () => {
       await commands.nongaussianMl({ data: "/d.csv", distribution: "student_t" });
       expect(mockInvoke).toHaveBeenCalledWith("nongaussian_ml", {
         params: { data: "/d.csv", distribution: "student_t" },
+      });
+    });
+
+    it("nongaussian-ml with mixture_normal distribution", async () => {
+      await commands.nongaussianMl({ data: "/d.csv", distribution: "mixture_normal" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_ml", {
+        params: { data: "/d.csv", distribution: "mixture_normal" },
+      });
+    });
+
+    it("nongaussian-ml with pml distribution", async () => {
+      await commands.nongaussianMl({ data: "/d.csv", distribution: "pml" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_ml", {
+        params: { data: "/d.csv", distribution: "pml" },
       });
     });
 
@@ -395,6 +450,13 @@ describe("command integration (invoke param shapes)", () => {
       await commands.nongaussianIdentifiability({ data: "/d.csv", test: "strength", method: "jade", contrast: "kurtosis" });
       expect(mockInvoke).toHaveBeenCalledWith("nongaussian_identifiability", {
         params: { data: "/d.csv", test: "strength", method: "jade", contrast: "kurtosis" },
+      });
+    });
+
+    it("nongaussian-identifiability with overidentification test", async () => {
+      await commands.nongaussianIdentifiability({ data: "/d.csv", test: "overidentification" });
+      expect(mockInvoke).toHaveBeenCalledWith("nongaussian_identifiability", {
+        params: { data: "/d.csv", test: "overidentification" },
       });
     });
   });
@@ -498,17 +560,19 @@ describe("command integration (invoke param shapes)", () => {
       });
     });
 
-    it("arima-auto with bic criterion", async () => {
-      await commands.arimaAuto({ data: "/d.csv", criterion: "bic" });
-      expect(mockInvoke).toHaveBeenCalledWith("arima_auto", {
+    it("arima-estimate auto mode (no p)", async () => {
+      await commands.arimaEstimate({ data: "/d.csv", criterion: "bic" });
+      expect(mockInvoke).toHaveBeenCalledWith("arima_estimate", {
         params: { data: "/d.csv", criterion: "bic" },
       });
     });
 
-    it("arima-auto with aic criterion", async () => {
-      await commands.arimaAuto({ data: "/d.csv", criterion: "aic" });
-      expect(mockInvoke).toHaveBeenCalledWith("arima_auto", {
-        params: { data: "/d.csv", criterion: "aic" },
+    it("arima-estimate auto mode with max_p/max_d/max_q", async () => {
+      await commands.arimaEstimate({
+        data: "/d.csv", max_p: 5, max_d: 2, max_q: 5, criterion: "aic",
+      });
+      expect(mockInvoke).toHaveBeenCalledWith("arima_estimate", {
+        params: { data: "/d.csv", max_p: 5, max_d: 2, max_q: 5, criterion: "aic" },
       });
     });
 

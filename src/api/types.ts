@@ -25,6 +25,39 @@ export interface VarStabilityParams {
   lags?: number;
 }
 
+export interface VarIrfParams {
+  data: string;
+  lags?: number;
+  shock?: number;
+  horizons?: number;
+  id?: string; // cholesky|sign|narrative|longrun|arias
+  ci?: string; // none|bootstrap|theoretical
+  replications?: number;
+  config?: string;
+}
+
+export interface VarFevdParams {
+  data: string;
+  lags?: number;
+  horizons?: number;
+  id?: string;
+  config?: string;
+}
+
+export interface VarHdParams {
+  data: string;
+  lags?: number;
+  id?: string;
+  config?: string;
+}
+
+export interface VarForecastParams {
+  data: string;
+  lags?: number;
+  horizons?: number;
+  confidence?: number;
+}
+
 // ── BVAR ─────────────────────────────────────────────────────────────────────
 
 export interface BvarEstimateParams {
@@ -45,123 +78,123 @@ export interface BvarPosteriorParams {
   config?: string;
 }
 
-// ── IRF ──────────────────────────────────────────────────────────────────────
-
-export interface IrfComputeParams {
+export interface BvarIrfParams {
   data: string;
   lags?: number;
   shock?: number;
   horizons?: number;
-  id?: string; // cholesky|sign|narrative|longrun|arias
-  ci?: string; // none|bootstrap|theoretical
-  replications?: number;
-  bayesian?: boolean;
-  config?: string;
+  id?: string;
   draws?: number;
   sampler?: string;
+  config?: string;
 }
 
-// ── FEVD ─────────────────────────────────────────────────────────────────────
-
-export interface FevdComputeParams {
+export interface BvarFevdParams {
   data: string;
   lags?: number;
   horizons?: number;
   id?: string;
-  bayesian?: boolean;
-  config?: string;
   draws?: number;
   sampler?: string;
+  config?: string;
 }
 
-// ── HD ───────────────────────────────────────────────────────────────────────
-
-export interface HdComputeParams {
+export interface BvarHdParams {
   data: string;
   lags?: number;
   id?: string;
-  bayesian?: boolean;
-  config?: string;
   draws?: number;
   sampler?: string;
+  config?: string;
+}
+
+export interface BvarForecastParams {
+  data: string;
+  lags?: number;
+  horizons?: number;
+  draws?: number;
+  sampler?: string;
+  config?: string;
 }
 
 // ── LP ───────────────────────────────────────────────────────────────────────
 
 export interface LpEstimateParams {
   data: string;
+  method?: string; // standard|iv|smooth|state|propensity|robust
   shock?: number;
   horizons?: number;
   control_lags?: number;
   vcov?: string;
-}
-
-export interface LpIvParams {
-  data: string;
-  shock?: number;
+  // iv-specific
   instruments?: string;
-  horizons?: number;
-  control_lags?: number;
-  vcov?: string;
-}
-
-export interface LpSmoothParams {
-  data: string;
-  shock?: number;
-  horizons?: number;
+  // smooth-specific
   knots?: number;
   lambda?: number;
+  // state-specific
+  state_var?: number;
+  gamma?: number;
+  transition?: string;
+  // propensity/robust
+  treatment?: number;
+  score_method?: string;
 }
 
-export interface LpStateParams {
+export interface LpIrfParams {
   data: string;
   shock?: number;
-  state_var?: number;
-  horizons?: number;
-  gamma?: number;
-  method?: string;
-}
-
-export interface LpPropensityParams {
-  data: string;
-  treatment?: number;
-  horizons?: number;
-  score_method?: string;
-}
-
-export interface LpMultiParams {
-  data: string;
   shocks?: string;
   horizons?: number;
-  control_lags?: number;
+  lags?: number;
+  var_lags?: number;
+  id?: string;
+  ci?: string;
+  replications?: number;
+  conf_level?: number;
   vcov?: string;
+  config?: string;
 }
 
-export interface LpRobustParams {
+export interface LpFevdParams {
   data: string;
-  treatment?: number;
   horizons?: number;
-  score_method?: string;
+  lags?: number;
+  var_lags?: number;
+  id?: string;
+  vcov?: string;
+  config?: string;
+}
+
+export interface LpHdParams {
+  data: string;
+  lags?: number;
+  var_lags?: number;
+  id?: string;
+  vcov?: string;
+  config?: string;
+}
+
+export interface LpForecastParams {
+  data: string;
+  shock?: number;
+  horizons?: number;
+  shock_size?: number;
+  lags?: number;
+  vcov?: string;
+  ci_method?: string;
+  conf_level?: number;
+  n_boot?: number;
 }
 
 // ── Factor ───────────────────────────────────────────────────────────────────
 
-export interface FactorStaticParams {
+export interface FactorEstimateParams {
   data: string;
+  model_type: string; // static|dynamic|gdfm
   nfactors?: number;
   criterion?: string;
-}
-
-export interface FactorDynamicParams {
-  data: string;
-  nfactors?: number;
   factor_lags?: number;
   method?: string;
-}
-
-export interface FactorGdfmParams {
-  data: string;
-  nfactors?: number;
   dynamic_rank?: number;
 }
 
@@ -171,6 +204,10 @@ export interface FactorForecastParams {
   horizon?: number;
   ci_method?: string;
   conf_level?: number;
+  model?: string; // static|dynamic|gdfm
+  factor_lags?: number;
+  method?: string;
+  dynamic_rank?: number;
 }
 
 // ── Non-Gaussian SVAR ───────────────────────────────────────────────────────
@@ -178,14 +215,14 @@ export interface FactorForecastParams {
 export interface NongaussianFasticaParams {
   data: string;
   lags?: number;
-  method?: string; // fastica|infomax|jade
+  method?: string; // fastica|infomax|jade|sobi|dcov|hsic
   contrast?: string; // logcosh|exp|kurtosis
 }
 
 export interface NongaussianMlParams {
   data: string;
   lags?: number;
-  distribution?: string; // student_t|skew_t|ghd
+  distribution?: string; // student_t|skew_t|ghd|mixture_normal|pml|skew_normal
 }
 
 export interface NongaussianHeteroskedasticityParams {
@@ -204,8 +241,8 @@ export interface NongaussianNormalityParams {
 export interface NongaussianIdentifiabilityParams {
   data: string;
   lags?: number;
-  test?: string; // strength|gaussianity|independence|all
-  method?: string; // fastica|infomax|jade
+  test?: string; // strength|gaussianity|independence|all|overidentification
+  method?: string; // fastica|infomax|jade|sobi|dcov|hsic
   contrast?: string; // logcosh|exp|kurtosis
 }
 
@@ -262,20 +299,15 @@ export interface GmmEstimateParams {
 export interface ArimaEstimateParams {
   data: string;
   column?: number;
-  p?: number;
+  p?: number; // optional: omit for auto mode
   d?: number;
   q?: number;
   method?: string;
-}
-
-export interface ArimaAutoParams {
-  data: string;
-  column?: number;
+  // auto-mode params
   max_p?: number;
   max_d?: number;
   max_q?: number;
   criterion?: string;
-  method?: string;
 }
 
 export interface ArimaForecastParams {

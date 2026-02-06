@@ -42,45 +42,63 @@ const UNIT_ROOT_MENU: FlowNode = {
 };
 
 const VAR_MENU: FlowNode = {
-  message: "VAR Analysis — what would you like to do?",
+  message: "VAR Analysis — estimation:",
   options: [
     { label: "Lag Selection", command: "var-lagselect", description: "Select optimal lag order" },
     { label: "VAR Estimate", command: "var-estimate", description: "Estimate the VAR model" },
+    { label: "Stability Check", command: "var-stability", description: "Check eigenvalue stability" },
+  ],
+};
+
+const VAR_MENU_2: FlowNode = {
+  message: "VAR Analysis — post-estimation:",
+  options: [
+    { label: "VAR IRF", command: "var-irf", description: "Impulse response functions" },
+    { label: "VAR FEVD", command: "var-fevd", description: "Forecast error variance decomposition" },
+    { label: "VAR HD", command: "var-hd", description: "Historical decomposition" },
+    { label: "VAR Forecast", command: "var-forecast", description: "Point forecasts" },
   ],
 };
 
 const BVAR_MENU: FlowNode = {
-  message: "BVAR Analysis — what would you like to do?",
+  message: "BVAR Analysis — estimation:",
   options: [
     { label: "BVAR Estimate", command: "bvar-estimate", description: "Estimate Bayesian VAR" },
+    { label: "BVAR Posterior", command: "bvar-posterior", description: "Posterior analysis" },
+  ],
+};
+
+const BVAR_MENU_2: FlowNode = {
+  message: "BVAR Analysis — post-estimation:",
+  options: [
+    { label: "BVAR IRF", command: "bvar-irf", description: "Bayesian impulse responses" },
+    { label: "BVAR FEVD", command: "bvar-fevd", description: "Bayesian variance decomposition" },
+    { label: "BVAR HD", command: "bvar-hd", description: "Bayesian historical decomposition" },
+    { label: "BVAR Forecast", command: "bvar-forecast", description: "Bayesian forecasts" },
   ],
 };
 
 const LP_MENU: FlowNode = {
-  message: "Which Local Projection method?",
+  message: "Local Projections — estimation:",
   options: [
-    { label: "Standard LP", command: "lp-estimate", description: "Standard local projections" },
-    { label: "LP-IV", command: "lp-iv", description: "Instrumental variable LP" },
-    { label: "Smooth LP", command: "lp-smooth", description: "Smooth local projections" },
-    { label: "State-Dependent LP", command: "lp-state", description: "Regime-switching LP" },
+    { label: "LP Estimate", command: "lp-estimate", description: "LP estimation (method selected in form)" },
   ],
 };
 
 const LP_MENU_2: FlowNode = {
-  message: "More Local Projection methods:",
+  message: "Local Projections — post-estimation:",
   options: [
-    { label: "Propensity Score LP", command: "lp-propensity", description: "Propensity-score weighted" },
-    { label: "Multi-Shock LP", command: "lp-multi", description: "Multiple shocks simultaneously" },
-    { label: "Doubly Robust LP", command: "lp-robust", description: "Doubly robust estimation" },
+    { label: "LP IRF", command: "lp-irf", description: "Structural LP impulse responses" },
+    { label: "LP FEVD", command: "lp-fevd", description: "LP variance decomposition" },
+    { label: "LP HD", command: "lp-hd", description: "LP historical decomposition" },
+    { label: "LP Forecast", command: "lp-forecast", description: "Direct LP forecasts" },
   ],
 };
 
 const FACTOR_MENU: FlowNode = {
-  message: "Which factor model?",
+  message: "Which factor model operation?",
   options: [
-    { label: "Static Factor", command: "factor-static", description: "Static factor analysis" },
-    { label: "Dynamic Factor", command: "factor-dynamic", description: "Dynamic factor model" },
-    { label: "GDFM", command: "factor-gdfm", description: "Generalized dynamic factor model" },
+    { label: "Factor Estimate", command: "factor-estimate", description: "Estimate factor model (static/dynamic/gdfm)" },
     { label: "Factor Forecast", command: "factor-forecast", description: "Forecast using factor model" },
   ],
 };
@@ -92,12 +110,6 @@ const NONGAUSSIAN_MENU: FlowNode = {
     { label: "FastICA", command: "nongaussian-fastica", description: "ICA-based identification" },
     { label: "ML Estimation", command: "nongaussian-ml", description: "Maximum likelihood non-Gaussian" },
     { label: "Heteroskedasticity", command: "nongaussian-heteroskedasticity", description: "Volatility-based identification" },
-  ],
-};
-
-const NONGAUSSIAN_MENU_2: FlowNode = {
-  message: "More Non-Gaussian methods:",
-  options: [
     { label: "Identifiability Tests", command: "nongaussian-identifiability", description: "Test identification conditions" },
   ],
 };
@@ -105,8 +117,7 @@ const NONGAUSSIAN_MENU_2: FlowNode = {
 const ARIMA_MENU: FlowNode = {
   message: "ARIMA — what would you like to do?",
   options: [
-    { label: "Auto ARIMA", command: "arima-auto", description: "Automatic model selection" },
-    { label: "ARIMA Estimate", command: "arima-estimate", description: "Manual ARIMA(p,d,q)" },
+    { label: "ARIMA Estimate", command: "arima-estimate", description: "ARIMA(p,d,q) or auto (omit p)" },
     { label: "ARIMA Forecast", command: "arima-forecast", description: "Generate forecasts" },
   ],
 };
@@ -115,7 +126,9 @@ export function getSubMenu(menuCommand: string): FlowNode | null {
   switch (menuCommand) {
     case "__menu_unitroot": return UNIT_ROOT_MENU;
     case "__menu_var": return VAR_MENU;
+    case "__menu_var2": return VAR_MENU_2;
     case "__menu_bvar": return BVAR_MENU;
+    case "__menu_bvar2": return BVAR_MENU_2;
     case "__menu_lp": return LP_MENU;
     case "__menu_lp2": return LP_MENU_2;
     case "__menu_factor": return FACTOR_MENU;
@@ -127,7 +140,6 @@ export function getSubMenu(menuCommand: string): FlowNode | null {
       ],
     };
     case "__menu_nongaussian": return NONGAUSSIAN_MENU;
-    case "__menu_nongaussian2": return NONGAUSSIAN_MENU_2;
     default: return null;
   }
 }
@@ -175,9 +187,10 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
         message: "VAR estimated. What next?",
         options: [
           { label: "Stability Check", command: "var-stability", description: "Check eigenvalue stability" },
-          { label: "IRF Compute", command: "irf-compute", description: "Impulse response functions" },
-          { label: "FEVD Compute", command: "fevd-compute", description: "Forecast error variance decomposition" },
-          { label: "HD Compute", command: "hd-compute", description: "Historical decomposition" },
+          { label: "VAR IRF", command: "var-irf", description: "Impulse response functions" },
+          { label: "VAR FEVD", command: "var-fevd", description: "Variance decomposition" },
+          { label: "VAR HD", command: "var-hd", description: "Historical decomposition" },
+          { label: "VAR Forecast", command: "var-forecast", description: "Point forecasts" },
         ],
       };
 
@@ -187,9 +200,10 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
         return {
           message: "VAR is stable. Proceed with analysis:",
           options: [
-            { label: "IRF Compute", command: "irf-compute", description: "Impulse response functions" },
-            { label: "FEVD Compute", command: "fevd-compute", description: "Forecast error variance decomposition" },
-            { label: "HD Compute", command: "hd-compute", description: "Historical decomposition" },
+            { label: "VAR IRF", command: "var-irf", description: "Impulse response functions" },
+            { label: "VAR FEVD", command: "var-fevd", description: "Variance decomposition" },
+            { label: "VAR HD", command: "var-hd", description: "Historical decomposition" },
+            { label: "VAR Forecast", command: "var-forecast", description: "Point forecasts" },
           ],
         };
       }
@@ -198,34 +212,35 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
         options: [
           { label: "Re-estimate VAR", command: "var-estimate", description: "Try different specification" },
           { label: "Lag Selection", command: "var-lagselect", description: "Re-select optimal lags" },
-          { label: "IRF Compute (anyway)", command: "irf-compute", description: "Proceed despite instability" },
+          { label: "VAR IRF (anyway)", command: "var-irf", description: "Proceed despite instability" },
         ],
       };
     }
 
-    case "irf-compute":
+    case "var-irf":
       return {
-        message: "IRF computed. What next?",
+        message: "VAR IRF computed. What next?",
         options: [
-          { label: "FEVD Compute", command: "fevd-compute", description: "Variance decomposition" },
-          { label: "HD Compute", command: "hd-compute", description: "Historical decomposition" },
+          { label: "VAR FEVD", command: "var-fevd", description: "Variance decomposition" },
+          { label: "VAR HD", command: "var-hd", description: "Historical decomposition" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
 
-    case "fevd-compute":
+    case "var-fevd":
       return {
-        message: "FEVD computed. What next?",
+        message: "VAR FEVD computed. What next?",
         options: [
-          { label: "HD Compute", command: "hd-compute", description: "Historical decomposition" },
-          { label: "IRF Compute", command: "irf-compute", description: "Impulse response functions" },
+          { label: "VAR HD", command: "var-hd", description: "Historical decomposition" },
+          { label: "VAR IRF", command: "var-irf", description: "Impulse response functions" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
 
-    case "hd-compute":
+    case "var-hd":
+    case "var-forecast":
       return {
-        message: "Historical decomposition computed.",
+        message: "Computation complete.",
         options: [
           { label: "New Analysis", command: "__main_menu", description: "Start a new analysis" },
         ],
@@ -237,8 +252,10 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
         message: "BVAR estimated. What next?",
         options: [
           { label: "BVAR Posterior", command: "bvar-posterior", description: "Posterior analysis" },
-          { label: "IRF Compute", command: "irf-compute", description: "Impulse response functions" },
-          { label: "FEVD Compute", command: "fevd-compute", description: "Variance decomposition" },
+          { label: "BVAR IRF", command: "bvar-irf", description: "Bayesian impulse responses" },
+          { label: "BVAR FEVD", command: "bvar-fevd", description: "Bayesian variance decomposition" },
+          { label: "BVAR HD", command: "bvar-hd", description: "Bayesian historical decomposition" },
+          { label: "BVAR Forecast", command: "bvar-forecast", description: "Bayesian forecasts" },
         ],
       };
 
@@ -246,37 +263,54 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
       return {
         message: "Posterior analysis complete. What next?",
         options: [
-          { label: "IRF Compute", command: "irf-compute", description: "Impulse response functions" },
+          { label: "BVAR IRF", command: "bvar-irf", description: "Bayesian impulse responses" },
+          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
+        ],
+      };
+
+    case "bvar-irf":
+    case "bvar-fevd":
+    case "bvar-hd":
+    case "bvar-forecast":
+      return {
+        message: "BVAR analysis complete. What next?",
+        options: [
+          { label: "More BVAR Analysis", command: "__menu_bvar2", description: "Other BVAR post-estimation" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
 
     // LP branch
     case "lp-estimate":
-    case "lp-iv":
-    case "lp-smooth":
-    case "lp-state":
-    case "lp-propensity":
-    case "lp-multi":
-    case "lp-robust":
       return {
         message: "Local projection estimated. What next?",
         options: [
-          { label: "Try Another LP", command: "__menu_lp", description: "Different LP method" },
-          { label: "More LP Methods", command: "__menu_lp2", description: "Propensity, Multi, Robust" },
+          { label: "LP IRF", command: "lp-irf", description: "Structural LP impulse responses" },
+          { label: "LP FEVD", command: "lp-fevd", description: "LP variance decomposition" },
+          { label: "LP HD", command: "lp-hd", description: "LP historical decomposition" },
+          { label: "LP Forecast", command: "lp-forecast", description: "Direct LP forecasts" },
+          { label: "Try Another Method", command: "lp-estimate", description: "Estimate with different method" },
+        ],
+      };
+
+    case "lp-irf":
+    case "lp-fevd":
+    case "lp-hd":
+    case "lp-forecast":
+      return {
+        message: "LP analysis complete. What next?",
+        options: [
+          { label: "More LP Analysis", command: "__menu_lp2", description: "Other LP post-estimation" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
 
     // Factor branch
-    case "factor-static":
-    case "factor-dynamic":
-    case "factor-gdfm":
+    case "factor-estimate":
       return {
         message: "Factor model estimated. What next?",
         options: [
           { label: "Factor Forecast", command: "factor-forecast", description: "Forecast using factor model" },
-          { label: "Try Another Model", command: "__menu_factor", description: "Different factor model" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
@@ -291,22 +325,11 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
       };
 
     // ARIMA branch
-    case "arima-auto":
-      return {
-        message: "Auto ARIMA complete. What next?",
-        options: [
-          { label: "ARIMA Forecast", command: "arima-forecast", description: "Generate forecasts" },
-          { label: "ARIMA Estimate", command: "arima-estimate", description: "Manual specification" },
-          { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
-        ],
-      };
-
     case "arima-estimate":
       return {
         message: "ARIMA estimated. What next?",
         options: [
           { label: "ARIMA Forecast", command: "arima-forecast", description: "Generate forecasts" },
-          { label: "Auto ARIMA", command: "arima-auto", description: "Compare with auto" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
@@ -339,7 +362,6 @@ export function getNextSteps(completedCommand: string, result: unknown): FlowNod
         options: [
           { label: "Identifiability Tests", command: "nongaussian-identifiability", description: "Verify identification" },
           { label: "Try Another Method", command: "__menu_nongaussian", description: "Different identification method" },
-          { label: "More Methods", command: "__menu_nongaussian2", description: "Additional methods" },
           { label: "New Analysis", command: "__main_menu", description: "Start fresh" },
         ],
       };
@@ -377,21 +399,22 @@ export const COMMAND_LABELS: Record<string, string> = {
   "var-estimate": "VAR Estimation",
   "var-lagselect": "VAR Lag Selection",
   "var-stability": "VAR Stability Check",
+  "var-irf": "VAR IRF",
+  "var-fevd": "VAR FEVD",
+  "var-hd": "VAR Historical Decomposition",
+  "var-forecast": "VAR Forecast",
   "bvar-estimate": "BVAR Estimation",
   "bvar-posterior": "BVAR Posterior",
-  "irf-compute": "IRF Computation",
-  "fevd-compute": "FEVD Computation",
-  "hd-compute": "Historical Decomposition",
+  "bvar-irf": "BVAR IRF",
+  "bvar-fevd": "BVAR FEVD",
+  "bvar-hd": "BVAR Historical Decomposition",
+  "bvar-forecast": "BVAR Forecast",
   "lp-estimate": "Local Projections",
-  "lp-iv": "LP-IV",
-  "lp-smooth": "Smooth LP",
-  "lp-state": "State-Dependent LP",
-  "lp-propensity": "Propensity Score LP",
-  "lp-multi": "Multi-Shock LP",
-  "lp-robust": "Doubly Robust LP",
-  "factor-static": "Static Factor Model",
-  "factor-dynamic": "Dynamic Factor Model",
-  "factor-gdfm": "GDFM",
+  "lp-irf": "LP IRF",
+  "lp-fevd": "LP FEVD",
+  "lp-hd": "LP Historical Decomposition",
+  "lp-forecast": "LP Forecast",
+  "factor-estimate": "Factor Model Estimation",
   "factor-forecast": "Factor Forecast",
   "nongaussian-fastica": "Non-Gaussian SVAR (FastICA)",
   "nongaussian-ml": "Non-Gaussian SVAR (ML)",
@@ -406,6 +429,5 @@ export const COMMAND_LABELS: Record<string, string> = {
   "test-johansen": "Johansen Cointegration Test",
   "gmm-estimate": "GMM Estimation",
   "arima-estimate": "ARIMA Estimation",
-  "arima-auto": "Auto ARIMA",
   "arima-forecast": "ARIMA Forecast",
 };

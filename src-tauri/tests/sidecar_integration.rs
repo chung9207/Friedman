@@ -259,7 +259,7 @@ fn assert_success(label: &str, output: &Output) {
 }
 
 // ===========================================================================
-// VAR (lenient — original tests)
+// VAR (lenient)
 // ===========================================================================
 
 #[test]
@@ -268,7 +268,6 @@ fn test_var_estimate_defaults() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/var.rs var_estimate with defaults
     let output = run_friedman(&[
         "var", "estimate", csv_str,
         "--trend", "constant",
@@ -282,7 +281,6 @@ fn test_var_estimate_with_lags() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/var.rs var_estimate with explicit lags
     let output = run_friedman(&[
         "var", "estimate", csv_str,
         "--lags", "2",
@@ -313,7 +311,6 @@ fn test_var_lagselect() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/var.rs var_lagselect
     let output = run_friedman(&[
         "var", "lagselect", csv_str,
         "--max-lags", "12",
@@ -337,11 +334,9 @@ fn test_var_stability() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/var.rs var_stability (no lags = auto)
     let output = run_friedman(&["var", "stability", csv_str]);
     assert_args_accepted("var stability (auto lags)", &output);
 
-    // With explicit lags
     let output = run_friedman(&[
         "var", "stability", csv_str,
         "--lags", "2",
@@ -349,8 +344,122 @@ fn test_var_stability() {
     assert_args_accepted("var stability (lags=2)", &output);
 }
 
+#[test]
+#[ignore]
+fn test_var_irf() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    // Mirrors: commands/var.rs var_irf
+    let output = run_friedman(&[
+        "var", "irf", csv_str,
+        "--shock", "1",
+        "--horizons", "10",
+        "--id", "cholesky",
+        "--ci", "bootstrap",
+        "--replications", "100",
+    ]);
+    assert_args_accepted("var irf (cholesky, bootstrap)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_irf_with_lags() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "irf", csv_str,
+        "--shock", "1",
+        "--horizons", "10",
+        "--id", "cholesky",
+        "--ci", "none",
+        "--replications", "100",
+        "--lags", "2",
+    ]);
+    assert_args_accepted("var irf (with lags)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_fevd() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "fevd", csv_str,
+        "--horizons", "10",
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("var fevd (cholesky)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_fevd_with_lags() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "fevd", csv_str,
+        "--horizons", "10",
+        "--id", "cholesky",
+        "--lags", "2",
+    ]);
+    assert_args_accepted("var fevd (with lags)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_hd() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "hd", csv_str,
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("var hd (cholesky)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_hd_with_lags() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "hd", csv_str,
+        "--id", "cholesky",
+        "--lags", "2",
+    ]);
+    assert_args_accepted("var hd (with lags)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_forecast() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "forecast", csv_str,
+        "--horizons", "12",
+        "--confidence", "0.95",
+    ]);
+    assert_args_accepted("var forecast (defaults)", &output);
+
+    let output = run_friedman(&[
+        "var", "forecast", csv_str,
+        "--horizons", "6",
+        "--confidence", "0.9",
+        "--lags", "2",
+    ]);
+    assert_args_accepted("var forecast (lags=2)", &output);
+}
+
 // ===========================================================================
-// BVAR (lenient — original tests)
+// BVAR (lenient)
 // ===========================================================================
 
 #[test]
@@ -359,12 +468,11 @@ fn test_bvar_estimate() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/bvar.rs bvar_estimate with defaults
     let output = run_friedman(&[
         "bvar", "estimate", csv_str,
         "--lags", "4",
         "--prior", "minnesota",
-        "--draws", "500",  // fewer draws for speed
+        "--draws", "500",
         "--sampler", "nuts",
     ]);
     assert_args_accepted("bvar estimate (defaults)", &output);
@@ -376,7 +484,6 @@ fn test_bvar_posterior() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/bvar.rs bvar_posterior
     let output = run_friedman(&[
         "bvar", "posterior", csv_str,
         "--lags", "2",
@@ -396,182 +503,99 @@ fn test_bvar_posterior() {
     assert_args_accepted("bvar posterior (median)", &output);
 }
 
-// ===========================================================================
-// IRF (lenient — original tests)
-// ===========================================================================
-
 #[test]
 #[ignore]
-fn test_irf_compute() {
+fn test_bvar_irf() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/irf.rs irf_compute (non-bayesian)
     let output = run_friedman(&[
-        "irf", "compute", csv_str,
+        "bvar", "irf", csv_str,
         "--shock", "1",
         "--horizons", "10",
         "--id", "cholesky",
-        "--ci", "bootstrap",
-        "--replications", "100",
+        "--draws", "500",
+        "--sampler", "nuts",
     ]);
-    assert_args_accepted("irf compute (cholesky, bootstrap)", &output);
-}
-
-#[test]
-#[ignore]
-fn test_irf_compute_with_lags() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
+    assert_args_accepted("bvar irf (cholesky)", &output);
 
     let output = run_friedman(&[
-        "irf", "compute", csv_str,
+        "bvar", "irf", csv_str,
         "--shock", "1",
         "--horizons", "10",
         "--id", "cholesky",
-        "--ci", "none",
-        "--replications", "100",
+        "--draws", "500",
+        "--sampler", "nuts",
         "--lags", "2",
     ]);
-    assert_args_accepted("irf compute (with lags)", &output);
+    assert_args_accepted("bvar irf (with lags)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_irf_compute_bayesian() {
+fn test_bvar_fevd() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Mirrors: commands/irf.rs irf_compute with bayesian=true
     let output = run_friedman(&[
-        "irf", "compute", csv_str,
-        "--shock", "1",
+        "bvar", "fevd", csv_str,
         "--horizons", "10",
         "--id", "cholesky",
-        "--ci", "bootstrap",
-        "--replications", "100",
-        "--bayesian",
         "--draws", "500",
         "--sampler", "nuts",
     ]);
-    assert_args_accepted("irf compute (bayesian)", &output);
-}
-
-// ===========================================================================
-// FEVD (lenient — original tests)
-// ===========================================================================
-
-#[test]
-#[ignore]
-fn test_fevd_compute() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "fevd", "compute", csv_str,
-        "--horizons", "10",
-        "--id", "cholesky",
-    ]);
-    assert_args_accepted("fevd compute (cholesky)", &output);
+    assert_args_accepted("bvar fevd (cholesky)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_fevd_compute_with_lags() {
+fn test_bvar_hd() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "fevd", "compute", csv_str,
-        "--horizons", "10",
+        "bvar", "hd", csv_str,
         "--id", "cholesky",
-        "--lags", "2",
-    ]);
-    assert_args_accepted("fevd compute (with lags)", &output);
-}
-
-#[test]
-#[ignore]
-fn test_fevd_compute_bayesian() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "fevd", "compute", csv_str,
-        "--horizons", "10",
-        "--id", "cholesky",
-        "--bayesian",
         "--draws", "500",
         "--sampler", "nuts",
     ]);
-    assert_args_accepted("fevd compute (bayesian)", &output);
-}
-
-// ===========================================================================
-// HD (lenient — original tests)
-// ===========================================================================
-
-#[test]
-#[ignore]
-fn test_hd_compute() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "hd", "compute", csv_str,
-        "--id", "cholesky",
-    ]);
-    assert_args_accepted("hd compute (cholesky)", &output);
+    assert_args_accepted("bvar hd (cholesky)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_hd_compute_with_lags() {
+fn test_bvar_forecast() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "hd", "compute", csv_str,
-        "--id", "cholesky",
-        "--lags", "2",
-    ]);
-    assert_args_accepted("hd compute (with lags)", &output);
-}
-
-#[test]
-#[ignore]
-fn test_hd_compute_bayesian() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "hd", "compute", csv_str,
-        "--id", "cholesky",
-        "--bayesian",
+        "bvar", "forecast", csv_str,
+        "--horizons", "12",
         "--draws", "500",
         "--sampler", "nuts",
     ]);
-    assert_args_accepted("hd compute (bayesian)", &output);
+    assert_args_accepted("bvar forecast (defaults)", &output);
 }
 
 // ===========================================================================
-// LP (lenient — original tests)
+// LP (lenient)
 // ===========================================================================
 
 #[test]
 #[ignore]
-fn test_lp_estimate() {
+fn test_lp_estimate_standard() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
         "lp", "estimate", csv_str,
+        "--method", "standard",
         "--shock", "1",
         "--horizons", "10",
         "--control-lags", "4",
         "--vcov", "newey_west",
     ]);
-    assert_args_accepted("lp estimate (newey_west)", &output);
+    assert_args_accepted("lp estimate standard (newey_west)", &output);
 }
 
 #[test]
@@ -583,198 +607,278 @@ fn test_lp_estimate_vcov_variants() {
     for vcov in &["white", "driscoll_kraay"] {
         let output = run_friedman(&[
             "lp", "estimate", csv_str,
+            "--method", "standard",
             "--shock", "1",
             "--horizons", "8",
             "--control-lags", "2",
             "--vcov", vcov,
         ]);
-        assert_args_accepted(&format!("lp estimate (vcov={vcov})"), &output);
+        assert_args_accepted(&format!("lp estimate standard (vcov={vcov})"), &output);
     }
 }
 
 #[test]
 #[ignore]
-fn test_lp_iv() {
+fn test_lp_estimate_iv() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Without instruments path (CLI should handle gracefully)
     let output = run_friedman(&[
-        "lp", "iv", csv_str,
+        "lp", "estimate", csv_str,
+        "--method", "iv",
         "--shock", "1",
         "--horizons", "10",
         "--control-lags", "4",
         "--vcov", "newey_west",
     ]);
-    assert_args_accepted("lp iv (no instruments)", &output);
+    assert_args_accepted("lp estimate iv (no instruments)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_smooth() {
+fn test_lp_estimate_smooth() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "smooth", csv_str,
+        "lp", "estimate", csv_str,
+        "--method", "smooth",
         "--shock", "1",
         "--horizons", "10",
+        "--control-lags", "4",
+        "--vcov", "newey_west",
         "--knots", "3",
         "--lambda", "0",
     ]);
-    assert_args_accepted("lp smooth", &output);
+    assert_args_accepted("lp estimate smooth", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_state() {
+fn test_lp_estimate_state() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "state", csv_str,
+        "lp", "estimate", csv_str,
+        "--method", "state",
         "--shock", "1",
-        "--horizons", "10",
-        "--gamma", "1.5",
-        "--method", "logistic",
-    ]);
-    assert_args_accepted("lp state (logistic)", &output);
-
-    // With explicit state-var
-    let output = run_friedman(&[
-        "lp", "state", csv_str,
-        "--shock", "1",
-        "--horizons", "10",
-        "--gamma", "1.5",
-        "--method", "logistic",
-        "--state-var", "2",
-    ]);
-    assert_args_accepted("lp state (with state-var)", &output);
-}
-
-#[test]
-#[ignore]
-fn test_lp_propensity() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "lp", "propensity", csv_str,
-        "--treatment", "1",
-        "--horizons", "10",
-        "--score-method", "logit",
-    ]);
-    assert_args_accepted("lp propensity (logit)", &output);
-
-    let output = run_friedman(&[
-        "lp", "propensity", csv_str,
-        "--treatment", "1",
-        "--horizons", "10",
-        "--score-method", "probit",
-    ]);
-    assert_args_accepted("lp propensity (probit)", &output);
-}
-
-#[test]
-#[ignore]
-fn test_lp_multi() {
-    let csv = test_csv();
-    let csv_str = csv.to_str().unwrap();
-
-    let output = run_friedman(&[
-        "lp", "multi", csv_str,
         "--horizons", "10",
         "--control-lags", "4",
         "--vcov", "newey_west",
-        "--shocks", "1,2",
+        "--gamma", "1.5",
+        "--transition", "logistic",
     ]);
-    assert_args_accepted("lp multi (shocks=1,2)", &output);
+    assert_args_accepted("lp estimate state (logistic)", &output);
+
+    let output = run_friedman(&[
+        "lp", "estimate", csv_str,
+        "--method", "state",
+        "--shock", "1",
+        "--horizons", "10",
+        "--control-lags", "4",
+        "--vcov", "newey_west",
+        "--gamma", "1.5",
+        "--transition", "logistic",
+        "--state-var", "2",
+    ]);
+    assert_args_accepted("lp estimate state (with state-var)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_robust() {
+fn test_lp_estimate_propensity() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "robust", csv_str,
-        "--treatment", "1",
+        "lp", "estimate", csv_str,
+        "--method", "propensity",
+        "--shock", "1",
         "--horizons", "10",
+        "--control-lags", "4",
+        "--vcov", "newey_west",
+        "--treatment", "1",
         "--score-method", "logit",
     ]);
-    assert_args_accepted("lp robust", &output);
+    assert_args_accepted("lp estimate propensity (logit)", &output);
+
+    let output = run_friedman(&[
+        "lp", "estimate", csv_str,
+        "--method", "propensity",
+        "--shock", "1",
+        "--horizons", "10",
+        "--control-lags", "4",
+        "--vcov", "newey_west",
+        "--treatment", "1",
+        "--score-method", "probit",
+    ]);
+    assert_args_accepted("lp estimate propensity (probit)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_lp_estimate_robust() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "lp", "estimate", csv_str,
+        "--method", "robust",
+        "--shock", "1",
+        "--horizons", "10",
+        "--control-lags", "4",
+        "--vcov", "newey_west",
+        "--treatment", "1",
+        "--score-method", "logit",
+    ]);
+    assert_args_accepted("lp estimate robust", &output);
+}
+
+#[test]
+#[ignore]
+fn test_lp_irf() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    // Single shock
+    let output = run_friedman(&[
+        "lp", "irf", csv_str,
+        "--shock", "1",
+        "--horizons", "10",
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("lp irf (single shock)", &output);
+
+    // Multiple shocks
+    let output = run_friedman(&[
+        "lp", "irf", csv_str,
+        "--shocks", "1,2",
+        "--horizons", "10",
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("lp irf (multi shock)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_lp_fevd() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "lp", "fevd", csv_str,
+        "--horizons", "10",
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("lp fevd (cholesky)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_lp_hd() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "lp", "hd", csv_str,
+        "--id", "cholesky",
+    ]);
+    assert_args_accepted("lp hd (cholesky)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_lp_forecast() {
+    let csv = test_csv();
+    let csv_str = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "lp", "forecast", csv_str,
+        "--horizons", "12",
+    ]);
+    assert_args_accepted("lp forecast (defaults)", &output);
+
+    let output = run_friedman(&[
+        "lp", "forecast", csv_str,
+        "--shock", "1",
+        "--horizons", "6",
+        "--shock-size", "1.0",
+        "--lags", "2",
+        "--vcov", "newey_west",
+    ]);
+    assert_args_accepted("lp forecast (with options)", &output);
 }
 
 // ===========================================================================
-// Factor Models (lenient — original tests)
+// Factor Models (lenient)
 // ===========================================================================
 
 #[test]
 #[ignore]
-fn test_factor_static() {
+fn test_factor_estimate_static() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     // Auto nfactors
     let output = run_friedman(&[
-        "factor", "static", csv_str,
+        "factor", "estimate", "static", csv_str,
         "--criterion", "ic1",
     ]);
-    assert_args_accepted("factor static (auto)", &output);
+    assert_args_accepted("factor estimate static (auto)", &output);
 
     // Explicit nfactors
     let output = run_friedman(&[
-        "factor", "static", csv_str,
+        "factor", "estimate", "static", csv_str,
         "--nfactors", "2",
         "--criterion", "ic1",
     ]);
-    assert_args_accepted("factor static (nfactors=2)", &output);
+    assert_args_accepted("factor estimate static (nfactors=2)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_factor_dynamic() {
+fn test_factor_estimate_dynamic() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "factor", "dynamic", csv_str,
+        "factor", "estimate", "dynamic", csv_str,
         "--factor-lags", "1",
         "--method", "twostep",
     ]);
-    assert_args_accepted("factor dynamic (twostep)", &output);
+    assert_args_accepted("factor estimate dynamic (twostep)", &output);
 
     let output = run_friedman(&[
-        "factor", "dynamic", csv_str,
+        "factor", "estimate", "dynamic", csv_str,
         "--nfactors", "2",
         "--factor-lags", "1",
         "--method", "em",
     ]);
-    assert_args_accepted("factor dynamic (em, nfactors=2)", &output);
+    assert_args_accepted("factor estimate dynamic (em, nfactors=2)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_factor_gdfm() {
+fn test_factor_estimate_gdfm() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
     // Auto
-    let output = run_friedman(&["factor", "gdfm", csv_str]);
-    assert_args_accepted("factor gdfm (auto)", &output);
+    let output = run_friedman(&["factor", "estimate", "gdfm", csv_str]);
+    assert_args_accepted("factor estimate gdfm (auto)", &output);
 
     // Explicit
     let output = run_friedman(&[
-        "factor", "gdfm", csv_str,
+        "factor", "estimate", "gdfm", csv_str,
         "--nfactors", "2",
         "--dynamic-rank", "1",
     ]);
-    assert_args_accepted("factor gdfm (explicit)", &output);
+    assert_args_accepted("factor estimate gdfm (explicit)", &output);
 }
 
 // ===========================================================================
-// Unit Root & Cointegration Tests (lenient — original tests)
+// Unit Root & Cointegration Tests (lenient)
 // ===========================================================================
 
 #[test]
@@ -790,7 +894,6 @@ fn test_adf() {
     ]);
     assert_args_accepted("test adf (constant)", &output);
 
-    // With max-lags
     let output = run_friedman(&[
         "test", "adf", csv_str,
         "--column", "2",
@@ -887,7 +990,7 @@ fn test_johansen() {
 }
 
 // ===========================================================================
-// GMM (lenient — original test)
+// GMM (lenient)
 // ===========================================================================
 
 #[test]
@@ -896,7 +999,6 @@ fn test_gmm_estimate() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
-    // Without config (will likely fail computationally, but args should be accepted)
     let output = run_friedman(&[
         "gmm", "estimate", csv_str,
         "--weighting", "twostep",
@@ -905,7 +1007,7 @@ fn test_gmm_estimate() {
 }
 
 // ===========================================================================
-// ARIMA (lenient — original tests)
+// ARIMA (lenient)
 // ===========================================================================
 
 #[test]
@@ -914,6 +1016,7 @@ fn test_arima_estimate() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
+    // Explicit p (manual mode)
     let output = run_friedman(&[
         "arima", "estimate", csv_str,
         "--column", "2",
@@ -937,31 +1040,36 @@ fn test_arima_estimate() {
 
 #[test]
 #[ignore]
-fn test_arima_auto() {
+fn test_arima_estimate_auto() {
     let csv = test_csv();
     let csv_str = csv.to_str().unwrap();
 
+    // Auto mode: omit --p, use --max-p/--max-d/--max-q/--criterion
     let output = run_friedman(&[
-        "arima", "auto", csv_str,
+        "arima", "estimate", csv_str,
         "--column", "2",
+        "--d", "0",
+        "--q", "0",
+        "--method", "css_mle",
         "--max-p", "3",
         "--max-d", "1",
         "--max-q", "3",
         "--criterion", "bic",
-        "--method", "css_mle",
     ]);
-    assert_args_accepted("arima auto (bic)", &output);
+    assert_args_accepted("arima estimate auto (bic)", &output);
 
     let output = run_friedman(&[
-        "arima", "auto", csv_str,
+        "arima", "estimate", csv_str,
         "--column", "2",
+        "--d", "0",
+        "--q", "0",
+        "--method", "css_mle",
         "--max-p", "5",
         "--max-d", "2",
         "--max-q", "5",
         "--criterion", "aic",
-        "--method", "css_mle",
     ]);
-    assert_args_accepted("arima auto (aic)", &output);
+    assert_args_accepted("arima estimate auto (aic)", &output);
 }
 
 #[test]
@@ -997,7 +1105,7 @@ fn test_arima_forecast() {
 }
 
 // ===========================================================================
-// Factor Forecast (lenient — v0.1.2)
+// Factor Forecast (lenient)
 // ===========================================================================
 
 #[test]
@@ -1021,10 +1129,21 @@ fn test_factor_forecast() {
         "--horizon", "6",
     ]);
     assert_args_accepted("factor forecast (nfactors=2)", &output);
+
+    // With model type
+    let output = run_friedman(&[
+        "factor", "forecast", csv_str,
+        "--nfactors", "2",
+        "--horizon", "6",
+        "--model", "dynamic",
+        "--factor-lags", "1",
+        "--method", "twostep",
+    ]);
+    assert_args_accepted("factor forecast (dynamic)", &output);
 }
 
 // ===========================================================================
-// Non-Gaussian SVAR (lenient — v0.1.2)
+// Non-Gaussian SVAR (lenient)
 // ===========================================================================
 
 #[test]
@@ -1143,37 +1262,49 @@ fn test_var_stability_strict() {
 
 #[test]
 #[ignore]
-fn test_irf_compute_strict() {
+fn test_var_irf_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "irf", "compute", c, "--shock", "1", "--horizons", "10",
+        "var", "irf", c, "--shock", "1", "--horizons", "10",
         "--id", "cholesky", "--ci", "none", "--replications", "100", "--lags", "2",
     ]);
-    assert_success("irf compute (cholesky)", &output);
+    assert_success("var irf (cholesky)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_fevd_compute_strict() {
+fn test_var_fevd_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "fevd", "compute", c, "--horizons", "10", "--id", "cholesky", "--lags", "2",
+        "var", "fevd", c, "--horizons", "10", "--id", "cholesky", "--lags", "2",
     ]);
-    assert_success("fevd compute (cholesky)", &output);
+    assert_success("var fevd (cholesky)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_hd_compute_strict() {
+fn test_var_hd_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
-    let output = run_friedman(&["hd", "compute", c, "--id", "cholesky", "--lags", "2"]);
-    assert_success("hd compute (cholesky)", &output);
+    let output = run_friedman(&["var", "hd", c, "--id", "cholesky", "--lags", "2"]);
+    assert_success("var hd (cholesky)", &output);
+}
+
+#[test]
+#[ignore]
+fn test_var_forecast_strict() {
+    let csv = test_csv();
+    let c = csv.to_str().unwrap();
+
+    let output = run_friedman(&[
+        "var", "forecast", c, "--horizons", "12", "--confidence", "0.95", "--lags", "2",
+    ]);
+    assert_success("var forecast", &output);
 }
 
 #[test]
@@ -1183,107 +1314,106 @@ fn test_lp_estimate_strict() {
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "estimate", c, "--shock", "1", "--horizons", "10",
+        "lp", "estimate", c, "--method", "standard", "--shock", "1", "--horizons", "10",
         "--control-lags", "4", "--vcov", "newey_west",
     ]);
-    assert_success("lp estimate (newey_west)", &output);
+    assert_success("lp estimate standard (newey_west)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_smooth_strict() {
+fn test_lp_estimate_smooth_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "smooth", c, "--shock", "1", "--horizons", "10",
-        "--knots", "3", "--lambda", "0",
+        "lp", "estimate", c, "--method", "smooth", "--shock", "1", "--horizons", "10",
+        "--control-lags", "4", "--vcov", "newey_west", "--knots", "3", "--lambda", "0",
     ]);
-    assert_success("lp smooth", &output);
+    assert_success("lp estimate smooth", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_state_strict() {
+fn test_lp_estimate_state_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "state", c, "--shock", "1", "--horizons", "10",
-        "--gamma", "1.5", "--method", "logistic",
+        "lp", "estimate", c, "--method", "state", "--shock", "1", "--horizons", "10",
+        "--control-lags", "4", "--vcov", "newey_west", "--gamma", "1.5", "--transition", "logistic",
     ]);
-    assert_success("lp state (logistic)", &output);
+    assert_success("lp estimate state (logistic)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_propensity_strict() {
+fn test_lp_estimate_propensity_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "propensity", c, "--treatment", "1", "--horizons", "10",
-        "--score-method", "logit",
+        "lp", "estimate", c, "--method", "propensity", "--shock", "1", "--horizons", "10",
+        "--control-lags", "4", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit",
     ]);
-    assert_success("lp propensity (logit)", &output);
+    assert_success("lp estimate propensity (logit)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_multi_strict() {
+fn test_lp_estimate_robust_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "multi", c, "--horizons", "10", "--control-lags", "4",
-        "--vcov", "newey_west", "--shocks", "1,2",
+        "lp", "estimate", c, "--method", "robust", "--shock", "1", "--horizons", "10",
+        "--control-lags", "4", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit",
     ]);
-    assert_success("lp multi (shocks=1,2)", &output);
+    assert_success("lp estimate robust", &output);
 }
 
 #[test]
 #[ignore]
-fn test_lp_robust_strict() {
+fn test_lp_irf_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "lp", "robust", c, "--treatment", "1", "--horizons", "10",
-        "--score-method", "logit",
+        "lp", "irf", c, "--shocks", "1,2", "--horizons", "10", "--id", "cholesky",
     ]);
-    assert_success("lp robust", &output);
+    assert_success("lp irf (multi shock)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_factor_static_strict() {
+fn test_factor_estimate_static_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
-    let output = run_friedman(&["factor", "static", c, "--nfactors", "2", "--criterion", "ic1"]);
-    assert_success("factor static (nfactors=2)", &output);
+    let output = run_friedman(&["factor", "estimate", "static", c, "--nfactors", "2", "--criterion", "ic1"]);
+    assert_success("factor estimate static (nfactors=2)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_factor_dynamic_strict() {
+fn test_factor_estimate_dynamic_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "factor", "dynamic", c, "--factor-lags", "1", "--method", "twostep",
+        "factor", "estimate", "dynamic", c, "--factor-lags", "1", "--method", "twostep",
     ]);
-    assert_success("factor dynamic (twostep)", &output);
+    assert_success("factor estimate dynamic (twostep)", &output);
 }
 
 #[test]
 #[ignore]
-fn test_factor_gdfm_strict() {
+fn test_factor_estimate_gdfm_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
-    let output = run_friedman(&["factor", "gdfm", c]);
-    assert_success("factor gdfm (auto)", &output);
+    let output = run_friedman(&["factor", "estimate", "gdfm", c]);
+    assert_success("factor estimate gdfm (auto)", &output);
 }
 
 #[test]
@@ -1363,16 +1493,17 @@ fn test_arima_estimate_strict() {
 
 #[test]
 #[ignore]
-fn test_arima_auto_strict() {
+fn test_arima_estimate_auto_strict() {
     let csv = test_csv();
     let c = csv.to_str().unwrap();
 
     let output = run_friedman(&[
-        "arima", "auto", c, "--column", "2",
+        "arima", "estimate", c, "--column", "2",
+        "--d", "0", "--q", "0", "--method", "css_mle",
         "--max-p", "3", "--max-d", "1", "--max-q", "3",
-        "--criterion", "bic", "--method", "css_mle",
+        "--criterion", "bic",
     ]);
-    assert_success("arima auto (bic)", &output);
+    assert_success("arima estimate auto (bic)", &output);
 }
 
 #[test]
@@ -1461,40 +1592,54 @@ fn test_smoke_all_groups() {
     let c = csv.to_str().unwrap();
 
     let commands: Vec<(&str, Vec<&str>)> = vec![
+        // VAR
         ("var estimate",      vec!["var", "estimate", c, "--lags", "1", "--trend", "constant"]),
         ("var lagselect",     vec!["var", "lagselect", c, "--max-lags", "4", "--criterion", "aic"]),
         ("var stability",     vec!["var", "stability", c, "--lags", "1"]),
+        ("var irf",           vec!["var", "irf", c, "--shock", "1", "--horizons", "5", "--id", "cholesky", "--ci", "none", "--replications", "100"]),
+        ("var fevd",          vec!["var", "fevd", c, "--horizons", "5", "--id", "cholesky"]),
+        ("var hd",            vec!["var", "hd", c, "--id", "cholesky"]),
+        ("var forecast",      vec!["var", "forecast", c, "--horizons", "6", "--confidence", "0.95"]),
+        // BVAR
         ("bvar estimate",     vec!["bvar", "estimate", c, "--lags", "2", "--prior", "minnesota", "--draws", "200", "--sampler", "nuts"]),
         ("bvar posterior",    vec!["bvar", "posterior", c, "--lags", "2", "--draws", "200", "--sampler", "nuts", "--method", "mean"]),
-        ("irf compute",       vec!["irf", "compute", c, "--shock", "1", "--horizons", "5", "--id", "cholesky", "--ci", "none", "--replications", "100"]),
-        ("fevd compute",      vec!["fevd", "compute", c, "--horizons", "5", "--id", "cholesky"]),
-        ("hd compute",        vec!["hd", "compute", c, "--id", "cholesky"]),
-        ("lp estimate",       vec!["lp", "estimate", c, "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west"]),
-        ("lp iv",             vec!["lp", "iv", c, "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west"]),
-        ("lp smooth",         vec!["lp", "smooth", c, "--shock", "1", "--horizons", "5", "--knots", "3", "--lambda", "0"]),
-        ("lp state",          vec!["lp", "state", c, "--shock", "1", "--horizons", "5", "--gamma", "1.5", "--method", "logistic"]),
-        ("lp propensity",     vec!["lp", "propensity", c, "--treatment", "1", "--horizons", "5", "--score-method", "logit"]),
-        ("lp multi",          vec!["lp", "multi", c, "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west", "--shocks", "1,2"]),
-        ("lp robust",         vec!["lp", "robust", c, "--treatment", "1", "--horizons", "5", "--score-method", "logit"]),
-        ("factor static",     vec!["factor", "static", c, "--criterion", "ic1"]),
-        ("factor dynamic",    vec!["factor", "dynamic", c, "--factor-lags", "1", "--method", "twostep"]),
-        ("factor gdfm",       vec!["factor", "gdfm", c]),
+        ("bvar irf",          vec!["bvar", "irf", c, "--shock", "1", "--horizons", "5", "--id", "cholesky", "--draws", "200", "--sampler", "nuts"]),
+        ("bvar fevd",         vec!["bvar", "fevd", c, "--horizons", "5", "--id", "cholesky", "--draws", "200", "--sampler", "nuts"]),
+        ("bvar hd",           vec!["bvar", "hd", c, "--id", "cholesky", "--draws", "200", "--sampler", "nuts"]),
+        ("bvar forecast",     vec!["bvar", "forecast", c, "--horizons", "6", "--draws", "200", "--sampler", "nuts"]),
+        // LP
+        ("lp estimate std",   vec!["lp", "estimate", c, "--method", "standard", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west"]),
+        ("lp estimate iv",    vec!["lp", "estimate", c, "--method", "iv", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west"]),
+        ("lp estimate smooth", vec!["lp", "estimate", c, "--method", "smooth", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west", "--knots", "3", "--lambda", "0"]),
+        ("lp estimate state", vec!["lp", "estimate", c, "--method", "state", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west", "--gamma", "1.5", "--transition", "logistic"]),
+        ("lp estimate propensity", vec!["lp", "estimate", c, "--method", "propensity", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit"]),
+        ("lp estimate robust", vec!["lp", "estimate", c, "--method", "robust", "--shock", "1", "--horizons", "5", "--control-lags", "2", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit"]),
+        ("lp irf",            vec!["lp", "irf", c, "--shocks", "1,2", "--horizons", "5", "--id", "cholesky"]),
+        ("lp fevd",           vec!["lp", "fevd", c, "--horizons", "5", "--id", "cholesky"]),
+        ("lp hd",             vec!["lp", "hd", c, "--id", "cholesky"]),
+        ("lp forecast",       vec!["lp", "forecast", c, "--horizons", "6"]),
+        // Factor
+        ("factor est static", vec!["factor", "estimate", "static", c, "--criterion", "ic1"]),
+        ("factor est dynamic", vec!["factor", "estimate", "dynamic", c, "--factor-lags", "1", "--method", "twostep"]),
+        ("factor est gdfm",   vec!["factor", "estimate", "gdfm", c]),
+        ("factor forecast",   vec!["factor", "forecast", c, "--horizon", "6", "--ci-method", "none"]),
+        // Tests
         ("test adf",          vec!["test", "adf", c, "--column", "2", "--trend", "constant"]),
         ("test kpss",         vec!["test", "kpss", c, "--column", "2", "--trend", "constant"]),
         ("test pp",           vec!["test", "pp", c, "--column", "2", "--trend", "constant"]),
         ("test za",           vec!["test", "za", c, "--column", "2", "--trend", "both", "--trim", "0.15"]),
         ("test np",           vec!["test", "np", c, "--column", "2", "--trend", "constant"]),
         ("test johansen",     vec!["test", "johansen", c, "--lags", "2", "--trend", "constant"]),
+        // GMM
         ("gmm estimate",      vec!["gmm", "estimate", c, "--weighting", "twostep"]),
+        // ARIMA
         ("arima estimate",    vec!["arima", "estimate", c, "--column", "2", "--p", "1", "--d", "0", "--q", "0", "--method", "css_mle"]),
-        ("arima auto",        vec!["arima", "auto", c, "--column", "2", "--max-p", "3", "--max-d", "1", "--max-q", "3", "--criterion", "bic", "--method", "css_mle"]),
+        ("arima est auto",    vec!["arima", "estimate", c, "--column", "2", "--d", "0", "--q", "0", "--method", "css_mle", "--max-p", "3", "--max-d", "1", "--max-q", "3", "--criterion", "bic"]),
         ("arima forecast",    vec!["arima", "forecast", c, "--column", "2", "--d", "0", "--q", "0", "--horizons", "6", "--confidence", "0.95", "--method", "css_mle", "--p", "1"]),
-        // v0.1.2: Factor Forecast
-        ("factor forecast",   vec!["factor", "forecast", c, "--horizon", "6", "--ci-method", "none"]),
-        // v0.1.2: Non-Gaussian SVAR
+        // Non-Gaussian SVAR
         ("ng fastica",        vec!["nongaussian", "fastica", c, "--lags", "2", "--method", "fastica", "--contrast", "logcosh"]),
         ("ng ml",             vec!["nongaussian", "ml", c, "--lags", "2", "--distribution", "student_t"]),
-        ("ng heteroskedasticity", vec!["nongaussian", "heteroskedasticity", c, "--lags", "2", "--method", "markov", "--regimes", "2"]),
+        ("ng heterosked",     vec!["nongaussian", "heteroskedasticity", c, "--lags", "2", "--method", "markov", "--regimes", "2"]),
         ("ng normality",      vec!["nongaussian", "normality", c, "--lags", "2"]),
         ("ng identifiability", vec!["nongaussian", "identifiability", c, "--lags", "2", "--test", "all", "--method", "fastica", "--contrast", "logcosh"]),
     ];
@@ -1552,18 +1697,19 @@ fn test_smoke_strict() {
         ("var estimate",      vec!["var", "estimate", c, "--lags", "2", "--trend", "constant"]),
         ("var lagselect",     vec!["var", "lagselect", c, "--max-lags", "8", "--criterion", "aic"]),
         ("var stability",     vec!["var", "stability", c, "--lags", "2"]),
-        ("irf compute",       vec!["irf", "compute", c, "--shock", "1", "--horizons", "10", "--id", "cholesky", "--ci", "none", "--replications", "100", "--lags", "2"]),
-        ("fevd compute",      vec!["fevd", "compute", c, "--horizons", "10", "--id", "cholesky", "--lags", "2"]),
-        ("hd compute",        vec!["hd", "compute", c, "--id", "cholesky", "--lags", "2"]),
-        ("lp estimate",       vec!["lp", "estimate", c, "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west"]),
-        ("lp smooth",         vec!["lp", "smooth", c, "--shock", "1", "--horizons", "10", "--knots", "3", "--lambda", "0"]),
-        ("lp state",          vec!["lp", "state", c, "--shock", "1", "--horizons", "10", "--gamma", "1.5", "--method", "logistic"]),
-        ("lp propensity",     vec!["lp", "propensity", c, "--treatment", "1", "--horizons", "10", "--score-method", "logit"]),
-        ("lp multi",          vec!["lp", "multi", c, "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west", "--shocks", "1,2"]),
-        ("lp robust",         vec!["lp", "robust", c, "--treatment", "1", "--horizons", "10", "--score-method", "logit"]),
-        ("factor static",     vec!["factor", "static", c, "--nfactors", "2", "--criterion", "ic1"]),
-        ("factor dynamic",    vec!["factor", "dynamic", c, "--factor-lags", "1", "--method", "twostep"]),
-        ("factor gdfm",       vec!["factor", "gdfm", c]),
+        ("var irf",           vec!["var", "irf", c, "--shock", "1", "--horizons", "10", "--id", "cholesky", "--ci", "none", "--replications", "100", "--lags", "2"]),
+        ("var fevd",          vec!["var", "fevd", c, "--horizons", "10", "--id", "cholesky", "--lags", "2"]),
+        ("var hd",            vec!["var", "hd", c, "--id", "cholesky", "--lags", "2"]),
+        ("var forecast",      vec!["var", "forecast", c, "--horizons", "12", "--confidence", "0.95", "--lags", "2"]),
+        ("lp estimate std",   vec!["lp", "estimate", c, "--method", "standard", "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west"]),
+        ("lp estimate smooth", vec!["lp", "estimate", c, "--method", "smooth", "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west", "--knots", "3", "--lambda", "0"]),
+        ("lp estimate state", vec!["lp", "estimate", c, "--method", "state", "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west", "--gamma", "1.5", "--transition", "logistic"]),
+        ("lp estimate propensity", vec!["lp", "estimate", c, "--method", "propensity", "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit"]),
+        ("lp estimate robust", vec!["lp", "estimate", c, "--method", "robust", "--shock", "1", "--horizons", "10", "--control-lags", "4", "--vcov", "newey_west", "--treatment", "1", "--score-method", "logit"]),
+        ("lp irf",            vec!["lp", "irf", c, "--shocks", "1,2", "--horizons", "10", "--id", "cholesky"]),
+        ("factor est static", vec!["factor", "estimate", "static", c, "--nfactors", "2", "--criterion", "ic1"]),
+        ("factor est dynamic", vec!["factor", "estimate", "dynamic", c, "--factor-lags", "1", "--method", "twostep"]),
+        ("factor est gdfm",   vec!["factor", "estimate", "gdfm", c]),
         ("test adf",          vec!["test", "adf", c, "--column", "2", "--trend", "constant"]),
         ("test kpss",         vec!["test", "kpss", c, "--column", "2", "--trend", "constant"]),
         ("test pp",           vec!["test", "pp", c, "--column", "2", "--trend", "constant"]),
@@ -1571,11 +1717,9 @@ fn test_smoke_strict() {
         ("test np",           vec!["test", "np", c, "--column", "2", "--trend", "constant"]),
         ("test johansen",     vec!["test", "johansen", c, "--lags", "2", "--trend", "constant"]),
         ("arima estimate",    vec!["arima", "estimate", c, "--column", "2", "--p", "1", "--d", "0", "--q", "0", "--method", "css_mle"]),
-        ("arima auto",        vec!["arima", "auto", c, "--column", "2", "--max-p", "3", "--max-d", "1", "--max-q", "3", "--criterion", "bic", "--method", "css_mle"]),
+        ("arima est auto",    vec!["arima", "estimate", c, "--column", "2", "--d", "0", "--q", "0", "--method", "css_mle", "--max-p", "3", "--max-d", "1", "--max-q", "3", "--criterion", "bic"]),
         ("arima forecast",    vec!["arima", "forecast", c, "--column", "2", "--p", "1", "--d", "0", "--q", "0", "--horizons", "12", "--confidence", "0.95", "--method", "css_mle"]),
-        // v0.1.2: Factor Forecast
         ("factor forecast",   vec!["factor", "forecast", c, "--nfactors", "2", "--horizon", "6", "--ci-method", "none"]),
-        // v0.1.2: Non-Gaussian SVAR
         ("ng fastica",        vec!["nongaussian", "fastica", c, "--lags", "2", "--method", "fastica", "--contrast", "logcosh"]),
         ("ng ml",             vec!["nongaussian", "ml", c, "--lags", "2", "--distribution", "student_t"]),
         ("ng normality",      vec!["nongaussian", "normality", c, "--lags", "2"]),

@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Trash2, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
 import { useResultStore, type SavedResult } from "../stores/resultStore";
 import { COMMAND_LABELS } from "../lib/journalFlow";
+import { getChartForCommand } from "../lib/resultCharts";
+import { IRFChart } from "../components/charts/IRFChart";
+import { FEVDChart } from "../components/charts/FEVDChart";
+import { HDChart } from "../components/charts/HDChart";
+import { ForecastChart } from "../components/charts/ForecastChart";
+import { ScreePlot } from "../components/charts/ScreePlot";
 
 function formatTimestamp(ts: number): string {
   const d = new Date(ts);
@@ -11,6 +17,51 @@ function formatTimestamp(ts: number): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function ResultDataView({ command, data }: { command: string; data: unknown }) {
+  const chart = getChartForCommand(command, data);
+  const [showRaw, setShowRaw] = useState(false);
+
+  if (!chart) {
+    return (
+      <div>
+        <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wide mb-1">
+          Result
+        </p>
+        <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap font-mono bg-[var(--bg-primary)] border border-[var(--border-color)] rounded p-3 max-h-80 overflow-auto">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wide mb-1">
+        Result
+      </p>
+      <div className="h-[350px] bg-[var(--bg-primary)] border border-[var(--border-color)] rounded">
+        {chart.type === "irf" && <IRFChart data={chart.data} />}
+        {chart.type === "fevd" && <FEVDChart data={chart.data} />}
+        {chart.type === "hd" && <HDChart data={chart.data} />}
+        {chart.type === "forecast" && <ForecastChart data={chart.data} />}
+        {chart.type === "scree" && <ScreePlot data={chart.data} />}
+      </div>
+      <button
+        onClick={() => setShowRaw((v) => !v)}
+        className="flex items-center gap-1 mt-2 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+      >
+        {showRaw ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        Raw Data
+      </button>
+      {showRaw && (
+        <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap font-mono bg-[var(--bg-primary)] border border-[var(--border-color)] rounded p-3 max-h-80 overflow-auto mt-1">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
 }
 
 function ResultCard({ result, onRemove }: { result: SavedResult; onRemove: () => void }) {
@@ -69,15 +120,8 @@ function ResultCard({ result, onRemove }: { result: SavedResult; onRemove: () =>
             </div>
           )}
 
-          {/* Raw result data */}
-          <div>
-            <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wide mb-1">
-              Result
-            </p>
-            <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap font-mono bg-[var(--bg-primary)] border border-[var(--border-color)] rounded p-3 max-h-80 overflow-auto">
-              {JSON.stringify(result.data, null, 2)}
-            </pre>
-          </div>
+          {/* Chart + raw data */}
+          <ResultDataView command={result.command} data={result.data} />
         </div>
       )}
     </div>
@@ -120,7 +164,7 @@ export default function ResultPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {results.map((r) => (
               <ResultCard
                 key={r.id}

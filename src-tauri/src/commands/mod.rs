@@ -1,9 +1,6 @@
 pub mod data;
 pub mod var;
 pub mod bvar;
-pub mod irf;
-pub mod fevd;
-pub mod hd;
 pub mod lp;
 pub mod factor;
 pub mod test;

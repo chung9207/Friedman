@@ -28,27 +28,25 @@ pub fn run() {
             commands::var::var_estimate,
             commands::var::var_lagselect,
             commands::var::var_stability,
+            commands::var::var_irf,
+            commands::var::var_fevd,
+            commands::var::var_hd,
+            commands::var::var_forecast,
             // bvar
             commands::bvar::bvar_estimate,
             commands::bvar::bvar_posterior,
-            // irf
-            commands::irf::irf_compute,
-            // fevd
-            commands::fevd::fevd_compute,
-            // hd
-            commands::hd::hd_compute,
+            commands::bvar::bvar_irf,
+            commands::bvar::bvar_fevd,
+            commands::bvar::bvar_hd,
+            commands::bvar::bvar_forecast,
             // lp
             commands::lp::lp_estimate,
-            commands::lp::lp_iv,
-            commands::lp::lp_smooth,
-            commands::lp::lp_state,
-            commands::lp::lp_propensity,
-            commands::lp::lp_multi,
-            commands::lp::lp_robust,
+            commands::lp::lp_irf,
+            commands::lp::lp_fevd,
+            commands::lp::lp_hd,
+            commands::lp::lp_forecast,
             // factor
-            commands::factor::factor_static,
-            commands::factor::factor_dynamic,
-            commands::factor::factor_gdfm,
+            commands::factor::factor_estimate,
             commands::factor::factor_forecast,
             // test
             commands::test::test_adf,
@@ -62,7 +60,6 @@ pub fn run() {
             // arima
             commands::arima::arima_estimate,
             commands::arima::arima_forecast,
-            commands::arima::arima_auto,
             // nongaussian
             commands::nongaussian::nongaussian_fastica,
             commands::nongaussian::nongaussian_ml,

@@ -59,12 +59,12 @@ export function FileSelector({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Select a file or type path and press Enter..."
-          className="flex-1 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent)] transition-colors"
+          className="flex-1 min-w-0 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent)] transition-colors min-h-[44px]"
         />
         <button
           onClick={handleBrowse}
           disabled={loading}
-          className="flex items-center gap-1 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] disabled:opacity-50 transition-colors min-h-[44px]"
           title="Browse files"
         >
           <FolderOpen size={12} />

@@ -48,69 +48,83 @@ describe("journalFlow", () => {
       ]);
     });
 
-    it("__menu_var → lagselect + estimate", () => {
+    it("__menu_var → 3 estimation items (lagselect, estimate, stability)", () => {
       const menu = getSubMenu("__menu_var");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(2);
-      expect(menu!.options.map((o) => o.command)).toEqual(["var-lagselect", "var-estimate"]);
+      expect(menu!.options).toHaveLength(3);
+      expect(menu!.options.map((o) => o.command)).toEqual([
+        "var-lagselect", "var-estimate", "var-stability",
+      ]);
     });
 
-    it("__menu_bvar → estimate", () => {
+    it("__menu_var2 → 4 post-estimation items (irf, fevd, hd, forecast)", () => {
+      const menu = getSubMenu("__menu_var2");
+      expect(menu).not.toBeNull();
+      expect(menu!.options).toHaveLength(4);
+      expect(menu!.options.map((o) => o.command)).toEqual([
+        "var-irf", "var-fevd", "var-hd", "var-forecast",
+      ]);
+    });
+
+    it("__menu_bvar → 2 estimation items (estimate, posterior)", () => {
       const menu = getSubMenu("__menu_bvar");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(1);
-      expect(menu!.options[0].command).toBe("bvar-estimate");
+      expect(menu!.options).toHaveLength(2);
+      expect(menu!.options.map((o) => o.command)).toEqual([
+        "bvar-estimate", "bvar-posterior",
+      ]);
     });
 
-    it("__menu_lp → 4 LP methods", () => {
+    it("__menu_bvar2 → 4 post-estimation items (irf, fevd, hd, forecast)", () => {
+      const menu = getSubMenu("__menu_bvar2");
+      expect(menu).not.toBeNull();
+      expect(menu!.options).toHaveLength(4);
+      expect(menu!.options.map((o) => o.command)).toEqual([
+        "bvar-irf", "bvar-fevd", "bvar-hd", "bvar-forecast",
+      ]);
+    });
+
+    it("__menu_lp → 1 LP estimation item", () => {
       const menu = getSubMenu("__menu_lp");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(4);
-      expect(menu!.options.map((o) => o.command)).toEqual([
-        "lp-estimate", "lp-iv", "lp-smooth", "lp-state",
-      ]);
+      expect(menu!.options).toHaveLength(1);
+      expect(menu!.options[0].command).toBe("lp-estimate");
     });
 
-    it("__menu_lp2 → 3 more LP methods", () => {
+    it("__menu_lp2 → 4 LP post-estimation items", () => {
       const menu = getSubMenu("__menu_lp2");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(3);
+      expect(menu!.options).toHaveLength(4);
       expect(menu!.options.map((o) => o.command)).toEqual([
-        "lp-propensity", "lp-multi", "lp-robust",
+        "lp-irf", "lp-fevd", "lp-hd", "lp-forecast",
       ]);
     });
 
-    it("__menu_factor → 4 factor models (incl. forecast)", () => {
+    it("__menu_factor → 2 factor items (estimate, forecast)", () => {
       const menu = getSubMenu("__menu_factor");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(4);
+      expect(menu!.options).toHaveLength(2);
       expect(menu!.options.map((o) => o.command)).toEqual([
-        "factor-static", "factor-dynamic", "factor-gdfm", "factor-forecast",
+        "factor-estimate", "factor-forecast",
       ]);
     });
 
-    it("__menu_nongaussian → 4 non-gaussian methods", () => {
+    it("__menu_nongaussian → 5 non-gaussian methods (incl. identifiability)", () => {
       const menu = getSubMenu("__menu_nongaussian");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(4);
+      expect(menu!.options).toHaveLength(5);
       expect(menu!.options.map((o) => o.command)).toEqual([
-        "nongaussian-normality", "nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity",
+        "nongaussian-normality", "nongaussian-fastica", "nongaussian-ml",
+        "nongaussian-heteroskedasticity", "nongaussian-identifiability",
       ]);
     });
 
-    it("__menu_nongaussian2 → identifiability tests", () => {
-      const menu = getSubMenu("__menu_nongaussian2");
-      expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(1);
-      expect(menu!.options[0].command).toBe("nongaussian-identifiability");
-    });
-
-    it("__menu_arima → 3 ARIMA options", () => {
+    it("__menu_arima → 2 ARIMA options (estimate, forecast)", () => {
       const menu = getSubMenu("__menu_arima");
       expect(menu).not.toBeNull();
-      expect(menu!.options).toHaveLength(3);
+      expect(menu!.options).toHaveLength(2);
       expect(menu!.options.map((o) => o.command)).toEqual([
-        "arima-auto", "arima-estimate", "arima-forecast",
+        "arima-estimate", "arima-forecast",
       ]);
     });
 
@@ -149,83 +163,101 @@ describe("journalFlow", () => {
       expect(next.options.map((o) => o.command)).toEqual(["var-estimate", "__main_menu"]);
     });
 
-    it("after var-estimate → stability, irf, fevd, hd", () => {
+    it("after var-estimate → stability, var-irf, var-fevd, var-hd, var-forecast", () => {
       const next = getNextSteps("var-estimate", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "var-stability", "irf-compute", "fevd-compute", "hd-compute",
+        "var-stability", "var-irf", "var-fevd", "var-hd", "var-forecast",
       ]);
     });
 
-    it("after var-stability (stable=true) → irf, fevd, hd", () => {
+    it("after var-stability (stable=true) → var-irf, var-fevd, var-hd, var-forecast", () => {
       const next = getNextSteps("var-stability", { stable: true });
       expect(next.options.map((o) => o.command)).toEqual([
-        "irf-compute", "fevd-compute", "hd-compute",
+        "var-irf", "var-fevd", "var-hd", "var-forecast",
       ]);
     });
 
-    it("after var-stability (unstable) → re-estimate, lagselect, irf anyway", () => {
+    it("after var-stability (unstable) → re-estimate, lagselect, var-irf anyway", () => {
       const next = getNextSteps("var-stability", { stable: false });
       expect(next.options.map((o) => o.command)).toEqual([
-        "var-estimate", "var-lagselect", "irf-compute",
+        "var-estimate", "var-lagselect", "var-irf",
       ]);
     });
 
-    it("after irf-compute → fevd, hd, new analysis", () => {
-      const next = getNextSteps("irf-compute", {});
+    it("after var-irf → var-fevd, var-hd, new analysis", () => {
+      const next = getNextSteps("var-irf", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "fevd-compute", "hd-compute", "__main_menu",
+        "var-fevd", "var-hd", "__main_menu",
       ]);
     });
 
-    it("after fevd-compute → hd, irf, new analysis", () => {
-      const next = getNextSteps("fevd-compute", {});
+    it("after var-fevd → var-hd, var-irf, new analysis", () => {
+      const next = getNextSteps("var-fevd", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "hd-compute", "irf-compute", "__main_menu",
+        "var-hd", "var-irf", "__main_menu",
       ]);
     });
 
-    it("after hd-compute → new analysis only", () => {
-      const next = getNextSteps("hd-compute", {});
+    it("after var-hd → new analysis only", () => {
+      const next = getNextSteps("var-hd", {});
       expect(next.options).toHaveLength(1);
       expect(next.options[0].command).toBe("__main_menu");
     });
 
-    it("after bvar-estimate → posterior, irf, fevd", () => {
+    it("after var-forecast → new analysis only", () => {
+      const next = getNextSteps("var-forecast", {});
+      expect(next.options).toHaveLength(1);
+      expect(next.options[0].command).toBe("__main_menu");
+    });
+
+    // BVAR branch
+    it("after bvar-estimate → posterior, bvar-irf, bvar-fevd, bvar-hd, bvar-forecast", () => {
       const next = getNextSteps("bvar-estimate", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "bvar-posterior", "irf-compute", "fevd-compute",
+        "bvar-posterior", "bvar-irf", "bvar-fevd", "bvar-hd", "bvar-forecast",
       ]);
     });
 
-    it("after bvar-posterior → irf, new analysis", () => {
+    it("after bvar-posterior → bvar-irf, new analysis", () => {
       const next = getNextSteps("bvar-posterior", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "irf-compute", "__main_menu",
+        "bvar-irf", "__main_menu",
       ]);
     });
 
-    // LP commands
-    for (const cmd of [
-      "lp-estimate", "lp-iv", "lp-smooth", "lp-state",
-      "lp-propensity", "lp-multi", "lp-robust",
-    ]) {
-      it(`after ${cmd} → try another, more methods, new analysis`, () => {
+    for (const cmd of ["bvar-irf", "bvar-fevd", "bvar-hd", "bvar-forecast"]) {
+      it(`after ${cmd} → more BVAR analysis, new analysis`, () => {
         const next = getNextSteps(cmd, {});
         expect(next.options.map((o) => o.command)).toEqual([
-          "__menu_lp", "__menu_lp2", "__main_menu",
+          "__menu_bvar2", "__main_menu",
         ]);
       });
     }
 
-    // Factor models
-    for (const cmd of ["factor-static", "factor-dynamic", "factor-gdfm"]) {
-      it(`after ${cmd} → forecast, try another, new analysis`, () => {
+    // LP branch
+    it("after lp-estimate → lp-irf, lp-fevd, lp-hd, lp-forecast, try another", () => {
+      const next = getNextSteps("lp-estimate", {});
+      expect(next.options.map((o) => o.command)).toEqual([
+        "lp-irf", "lp-fevd", "lp-hd", "lp-forecast", "lp-estimate",
+      ]);
+    });
+
+    for (const cmd of ["lp-irf", "lp-fevd", "lp-hd", "lp-forecast"]) {
+      it(`after ${cmd} → more LP analysis, new analysis`, () => {
         const next = getNextSteps(cmd, {});
         expect(next.options.map((o) => o.command)).toEqual([
-          "factor-forecast", "__menu_factor", "__main_menu",
+          "__menu_lp2", "__main_menu",
         ]);
       });
     }
+
+    // Factor branch
+    it("after factor-estimate → factor-forecast, new analysis", () => {
+      const next = getNextSteps("factor-estimate", {});
+      expect(next.options.map((o) => o.command)).toEqual([
+        "factor-forecast", "__main_menu",
+      ]);
+    });
 
     it("after factor-forecast → try another, new analysis", () => {
       const next = getNextSteps("factor-forecast", {});
@@ -243,10 +275,10 @@ describe("journalFlow", () => {
     });
 
     for (const cmd of ["nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity"]) {
-      it(`after ${cmd} → identifiability, try another, more, new analysis`, () => {
+      it(`after ${cmd} → identifiability, try another, new analysis`, () => {
         const next = getNextSteps(cmd, {});
         expect(next.options.map((o) => o.command)).toEqual([
-          "nongaussian-identifiability", "__menu_nongaussian", "__menu_nongaussian2", "__main_menu",
+          "nongaussian-identifiability", "__menu_nongaussian", "__main_menu",
         ]);
       });
     }
@@ -258,17 +290,11 @@ describe("journalFlow", () => {
       ]);
     });
 
-    it("after arima-auto → forecast, manual, new analysis", () => {
-      const next = getNextSteps("arima-auto", {});
-      expect(next.options.map((o) => o.command)).toEqual([
-        "arima-forecast", "arima-estimate", "__main_menu",
-      ]);
-    });
-
-    it("after arima-estimate → forecast, auto, new analysis", () => {
+    // ARIMA branch
+    it("after arima-estimate → forecast, new analysis", () => {
       const next = getNextSteps("arima-estimate", {});
       expect(next.options.map((o) => o.command)).toEqual([
-        "arima-forecast", "arima-auto", "__main_menu",
+        "arima-forecast", "__main_menu",
       ]);
     });
 
@@ -297,16 +323,16 @@ describe("journalFlow", () => {
     it("has entries for all 34 commands", () => {
       const expectedCommands = [
         "var-estimate", "var-lagselect", "var-stability",
+        "var-irf", "var-fevd", "var-hd", "var-forecast",
         "bvar-estimate", "bvar-posterior",
-        "irf-compute", "fevd-compute", "hd-compute",
-        "lp-estimate", "lp-iv", "lp-smooth", "lp-state",
-        "lp-propensity", "lp-multi", "lp-robust",
-        "factor-static", "factor-dynamic", "factor-gdfm", "factor-forecast",
+        "bvar-irf", "bvar-fevd", "bvar-hd", "bvar-forecast",
+        "lp-estimate", "lp-irf", "lp-fevd", "lp-hd", "lp-forecast",
+        "factor-estimate", "factor-forecast",
         "nongaussian-fastica", "nongaussian-ml", "nongaussian-heteroskedasticity",
         "nongaussian-normality", "nongaussian-identifiability",
         "test-adf", "test-kpss", "test-pp", "test-za", "test-np", "test-johansen",
         "gmm-estimate",
-        "arima-estimate", "arima-auto", "arima-forecast",
+        "arima-estimate", "arima-forecast",
       ];
       for (const cmd of expectedCommands) {
         expect(COMMAND_LABELS[cmd]).toBeDefined();
@@ -322,9 +348,9 @@ describe("journalFlow", () => {
 
     it("specific label values verified", () => {
       expect(COMMAND_LABELS["var-estimate"]).toBe("VAR Estimation");
-      expect(COMMAND_LABELS["irf-compute"]).toBe("IRF Computation");
+      expect(COMMAND_LABELS["var-irf"]).toBe("VAR IRF");
       expect(COMMAND_LABELS["test-adf"]).toBe("ADF Test");
-      expect(COMMAND_LABELS["arima-auto"]).toBe("Auto ARIMA");
+      expect(COMMAND_LABELS["arima-estimate"]).toBe("ARIMA Estimation");
     });
   });
 });

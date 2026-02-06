@@ -4,21 +4,22 @@ import type {
   VarEstimateParams,
   VarLagSelectParams,
   VarStabilityParams,
+  VarIrfParams,
+  VarFevdParams,
+  VarHdParams,
+  VarForecastParams,
   BvarEstimateParams,
   BvarPosteriorParams,
-  IrfComputeParams,
-  FevdComputeParams,
-  HdComputeParams,
+  BvarIrfParams,
+  BvarFevdParams,
+  BvarHdParams,
+  BvarForecastParams,
   LpEstimateParams,
-  LpIvParams,
-  LpSmoothParams,
-  LpStateParams,
-  LpPropensityParams,
-  LpMultiParams,
-  LpRobustParams,
-  FactorStaticParams,
-  FactorDynamicParams,
-  FactorGdfmParams,
+  LpIrfParams,
+  LpFevdParams,
+  LpHdParams,
+  LpForecastParams,
+  FactorEstimateParams,
   FactorForecastParams,
   NongaussianFasticaParams,
   NongaussianMlParams,
@@ -34,7 +35,6 @@ import type {
   GmmEstimateParams,
   ArimaEstimateParams,
   ArimaForecastParams,
-  ArimaAutoParams,
 } from "./types";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -71,6 +71,22 @@ export async function varStability(params: VarStabilityParams): Promise<Record<s
   return invoke<Record<string, unknown>>("var_stability", { params });
 }
 
+export async function varIrf(params: VarIrfParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("var_irf", { params });
+}
+
+export async function varFevd(params: VarFevdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("var_fevd", { params });
+}
+
+export async function varHd(params: VarHdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("var_hd", { params });
+}
+
+export async function varForecast(params: VarForecastParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("var_forecast", { params });
+}
+
 // ── BVAR ─────────────────────────────────────────────────────────────────────
 
 export async function bvarEstimate(params: BvarEstimateParams): Promise<Record<string, unknown>> {
@@ -81,22 +97,20 @@ export async function bvarPosterior(params: BvarPosteriorParams): Promise<Record
   return invoke<Record<string, unknown>>("bvar_posterior", { params });
 }
 
-// ── IRF ──────────────────────────────────────────────────────────────────────
-
-export async function irfCompute(params: IrfComputeParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("irf_compute", { params });
+export async function bvarIrf(params: BvarIrfParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("bvar_irf", { params });
 }
 
-// ── FEVD ─────────────────────────────────────────────────────────────────────
-
-export async function fevdCompute(params: FevdComputeParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("fevd_compute", { params });
+export async function bvarFevd(params: BvarFevdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("bvar_fevd", { params });
 }
 
-// ── HD ───────────────────────────────────────────────────────────────────────
+export async function bvarHd(params: BvarHdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("bvar_hd", { params });
+}
 
-export async function hdCompute(params: HdComputeParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("hd_compute", { params });
+export async function bvarForecast(params: BvarForecastParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("bvar_forecast", { params });
 }
 
 // ── Local Projections ────────────────────────────────────────────────────────
@@ -105,42 +119,26 @@ export async function lpEstimate(params: LpEstimateParams): Promise<Record<strin
   return invoke<Record<string, unknown>>("lp_estimate", { params });
 }
 
-export async function lpIv(params: LpIvParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_iv", { params });
+export async function lpIrf(params: LpIrfParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("lp_irf", { params });
 }
 
-export async function lpSmooth(params: LpSmoothParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_smooth", { params });
+export async function lpFevd(params: LpFevdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("lp_fevd", { params });
 }
 
-export async function lpState(params: LpStateParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_state", { params });
+export async function lpHd(params: LpHdParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("lp_hd", { params });
 }
 
-export async function lpPropensity(params: LpPropensityParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_propensity", { params });
-}
-
-export async function lpMulti(params: LpMultiParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_multi", { params });
-}
-
-export async function lpRobust(params: LpRobustParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("lp_robust", { params });
+export async function lpForecast(params: LpForecastParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("lp_forecast", { params });
 }
 
 // ── Factor Models ────────────────────────────────────────────────────────────
 
-export async function factorStatic(params: FactorStaticParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("factor_static", { params });
-}
-
-export async function factorDynamic(params: FactorDynamicParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("factor_dynamic", { params });
-}
-
-export async function factorGdfm(params: FactorGdfmParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("factor_gdfm", { params });
+export async function factorEstimate(params: FactorEstimateParams): Promise<Record<string, unknown>> {
+  return invoke<Record<string, unknown>>("factor_estimate", { params });
 }
 
 export async function factorForecast(params: FactorForecastParams): Promise<Record<string, unknown>> {
@@ -209,8 +207,4 @@ export async function arimaEstimate(params: ArimaEstimateParams): Promise<Record
 
 export async function arimaForecast(params: ArimaForecastParams): Promise<Record<string, unknown>> {
   return invoke<Record<string, unknown>>("arima_forecast", { params });
-}
-
-export async function arimaAuto(params: ArimaAutoParams): Promise<Record<string, unknown>> {
-  return invoke<Record<string, unknown>>("arima_auto", { params });
 }

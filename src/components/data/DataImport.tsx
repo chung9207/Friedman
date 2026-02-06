@@ -137,12 +137,12 @@ export function DataImport() {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="flex flex-col items-center">
       <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4">
         Import Data
       </h2>
 
-      <div className="space-y-4 max-w-2xl">
+      <div className="space-y-4 w-full max-w-2xl">
         {/* File selector */}
         <FileSelector
           value={filePath}
@@ -178,7 +178,7 @@ export function DataImport() {
               value={sheetName}
               onChange={(e) => setSheetName(e.target.value)}
               placeholder="Sheet1"
-              className="w-48 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent)] transition-colors"
+              className="w-full sm:w-48 px-2 py-1.5 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent)] transition-colors"
             />
           </div>
         )}
@@ -243,7 +243,7 @@ export function DataImport() {
         )}
 
         {/* Import button */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button
             onClick={handleImport}
             disabled={loading || !filePath || format === "unknown" || imported}

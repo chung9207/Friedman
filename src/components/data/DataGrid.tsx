@@ -81,7 +81,7 @@ export function DataGrid({
                     <th
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
-                      className="px-3 py-2 text-left text-[var(--text-secondary)] font-semibold bg-[var(--bg-surface)] border-b border-[var(--border-color)] cursor-pointer select-none whitespace-nowrap hover:bg-[var(--bg-hover)] transition-colors"
+                      className="px-2 md:px-3 py-2 text-left text-[var(--text-secondary)] font-semibold bg-[var(--bg-surface)] border-b border-[var(--border-color)] cursor-pointer select-none whitespace-nowrap hover:bg-[var(--bg-hover)] transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         {flexRender(
@@ -114,7 +114,7 @@ export function DataGrid({
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-3 py-1.5 text-[var(--text-primary)] border-b border-[var(--border-color)]/30 whitespace-nowrap"
+                    className="px-2 md:px-3 py-1.5 text-[var(--text-primary)] border-b border-[var(--border-color)]/30 whitespace-nowrap"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
